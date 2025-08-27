@@ -127,9 +127,13 @@ function createPrerequisiteTab(techKey) {
     // Remove existing prerequisite tab if any
     closePrerequisiteTab();
 
-    // Find the Events tab and search bar to position between them
-    let eventsTab = $('.float-Anomalies').parent();
-    let searchTab = $('.float-Search').parent();
+    // Find the Events tab to position after it
+    let eventsTab = $('.float-Anomalies');
+    
+    if (eventsTab.length === 0) {
+        console.error('Events tab not found');
+        return;
+    }
     
     // Create the prerequisite tab element
     let prereqTab = $(`
@@ -144,7 +148,8 @@ function createPrerequisiteTab(techKey) {
     `);
 
     // Insert the tab between Events and Search
-    prereqTab.insertAfter(eventsTab);
+    eventsTab.after(prereqTab);
+    console.log('Prerequisite tab inserted into navigation');
 
     // Add click handlers
     prereqTab.find('.close-btn').on('click', function(e) {
@@ -163,6 +168,13 @@ function createPrerequisiteTab(techKey) {
     showPrerequisiteOverlay(techKey, tech, prerequisites);
     
     activePrerequisiteTab = prereqTab;
+    
+    // Verify tab was added
+    if ($('.prerequisite-tab').length > 0) {
+        console.log('Prerequisite tab successfully added to navigation bar');
+    } else {
+        console.error('Failed to add prerequisite tab to navigation bar');
+    }
 }
 
 // Show the prerequisite overlay with content
@@ -309,8 +321,10 @@ function getAreaColor(area) {
 
 // Close the prerequisite tab and return to main view
 function closePrerequisiteTab() {
+    // Remove any existing prerequisite tab from navigation
+    $('.prerequisite-tab').remove();
+    
     if (activePrerequisiteTab) {
-        activePrerequisiteTab.remove();
         activePrerequisiteTab = null;
     }
     
