@@ -1,0 +1,10 @@
+[33mded3205[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m)[m Sent an error message if user attempts to load a list that does not exist.
+[33m53f90ca[m If not research list is specified, a default one is used for saving and loading
+[33me151b5f[m fix wrong values for value:tech_weight_likelihood
+[33m49ab6c4[m fix wrong values for value:tech_weight_likelihood
+[33m0cc6198[m fornax 3.5.3
+[33m16135a4[m updated for orion 3.6.0
+[33mde665c9[m fix button order
+[33mc68ec62[m added the ability to track/save/load your technologies - might be buggy
+[33m61fb671[m fix: wrong numbers for non-technocracy/technocracy modifier
+[33me8e0ed5[m updated to 3.4.3
