@@ -135,9 +135,9 @@ function createPrerequisiteTab(techKey) {
         return;
     }
     
-    // Create the prerequisite tab element
+    // Create the prerequisite tab element with proper navigation styling
     let prereqTab = $(`
-        <li class="float-Element prerequisite-tab">
+        <li class="float-Element prerequisite-tab float-Highlight">
             <a class="float-Contents">
                 <h2>
                     <span class="tech-name" title="${tech.name}">📋 ${tech.name}</span>
@@ -160,12 +160,16 @@ function createPrerequisiteTab(techKey) {
 
     prereqTab.find('.float-Contents').on('click', function(e) {
         if (!$(e.target).hasClass('close-btn')) {
-            showPrerequisiteOverlay(techKey, tech, prerequisites);
+            // Handle tab switching like other navigation tabs
+            switchToPrerequisiteTab();
         }
     });
 
-    // Create and show the overlay
+    // Create the overlay and populate it with content
     showPrerequisiteOverlay(techKey, tech, prerequisites);
+    
+    // Switch to prerequisite tab immediately
+    switchToPrerequisiteTab();
     
     activePrerequisiteTab = prereqTab;
     
@@ -174,6 +178,26 @@ function createPrerequisiteTab(techKey) {
         console.log('Prerequisite tab successfully added to navigation bar');
     } else {
         console.error('Failed to add prerequisite tab to navigation bar');
+    }
+}
+
+// Switch to prerequisite tab (like other navigation tabs)
+function switchToPrerequisiteTab() {
+    // Update tab highlighting like other navigation tabs
+    $(".float-Element").removeClass("float-Highlight");
+    $(".float-Element").addClass("float-Lowlight");
+    $(".prerequisite-tab").removeClass("float-Lowlight");
+    $(".prerequisite-tab").addClass("float-Highlight");
+    
+    // Hide all tech tree sections
+    $("#tech-tree-physics").addClass("float-NoDisplay");
+    $("#tech-tree-society").addClass("float-NoDisplay");
+    $("#tech-tree-engineering").addClass("float-NoDisplay");
+    $("#tech-tree-anomalies").addClass("float-NoDisplay");
+    
+    // Show prerequisite overlay
+    if (prerequisiteOverlay) {
+        prerequisiteOverlay.classList.add('active');
     }
 }
 
@@ -193,10 +217,6 @@ function showPrerequisiteOverlay(techKey, tech, prerequisites) {
             </div>
         </div>
     `;
-
-    // Hide main tech tree and show overlay
-    $('#tech-tree').hide();
-    overlay.classList.add('active');
 
     // Initialize tooltips for the new content
     setTimeout(() => {
@@ -332,8 +352,17 @@ function closePrerequisiteTab() {
         prerequisiteOverlay.classList.remove('active');
     }
     
-    // Show main tech tree
-    $('#tech-tree').show();
+    // Switch back to "All" tab
+    $(".float-Element").removeClass("float-Highlight");
+    $(".float-Element").addClass("float-Lowlight");
+    $(".float-All").removeClass("float-Lowlight");
+    $(".float-All").addClass("float-Highlight");
+    
+    // Show all tech tree sections
+    $("#tech-tree-physics").removeClass("float-NoDisplay");
+    $("#tech-tree-society").removeClass("float-NoDisplay");
+    $("#tech-tree-engineering").removeClass("float-NoDisplay");
+    $("#tech-tree-anomalies").addClass("float-NoDisplay");
 }
 
 // Initialize tooltips for a specific container
@@ -402,8 +431,20 @@ function initPrerequisiteTabs() {
         console.log('Tech data cache loaded successfully');
         initContextMenu();
         
-        // Prerequisite tab will persist across navigation switches
-        // Only closes when X button is clicked or new prerequisite is opened
+        // Add listener to main navigation tabs to hide prerequisite overlay
+        $(document).on('click', '.float-Contents', function() {
+            // Only handle main navigation tabs, not the prerequisite tab
+            if (!$(this).closest('.prerequisite-tab').length && activePrerequisiteTab) {
+                // Hide prerequisite overlay when other tabs are clicked
+                if (prerequisiteOverlay) {
+                    prerequisiteOverlay.classList.remove('active');
+                }
+                
+                // Update tab highlighting to match the clicked tab
+                $(".prerequisite-tab").removeClass("float-Highlight");
+                $(".prerequisite-tab").addClass("float-Lowlight");
+            }
+        });
         
     }).catch(error => {
         console.error('Error loading tech data cache:', error);

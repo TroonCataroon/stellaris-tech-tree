@@ -359,7 +359,7 @@ div.fixed {
 
 .anomaly div.node-status {
     margin-right: -2px;
-    margin-top: -5px;]
+    margin-top: -5px;
 }
 
 div.fixed div {
@@ -551,7 +551,7 @@ span.tier-5 {
     Integrated Prerequisite Tab
 **********************************/
 
-/* Prerequisite tab styling - inherit from float-Element base styles */
+/* Prerequisite tab styling - matches other navigation tabs */
 li.float-Element.prerequisite-tab {
     display: inline;
     float: left;
@@ -561,9 +561,19 @@ li.float-Element.prerequisite-tab {
     padding-right: 20px;
     border-radius: 15px 15px 0px 0px;
     margin-top: 10px;
-    background: #4396E2 !important;
+    background: #303030; /* Default lowlight state like other tabs */
     max-width: 250px;
     position: relative;
+}
+
+/* Highlight state when active */
+li.float-Element.prerequisite-tab.float-Highlight {
+    background: #474747;
+}
+
+/* Lowlight state when inactive */
+li.float-Element.prerequisite-tab.float-Lowlight {
+    background: #303030;
 }
 
 li.float-Element.prerequisite-tab .float-Contents {
