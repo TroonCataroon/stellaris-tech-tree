@@ -1,4 +1,13 @@
-<ul class="float-Holder">
+<!-- Prerequisite Tabs Container -->
+<div class="prerequisite-tabs" id="prerequisite-tabs" style="display: none;">
+</div>
+
+<!-- Context Menu for Tech Nodes -->
+<div class="tech-context-menu" id="tech-context-menu">
+  <div class="tech-context-menu-item" id="view-prerequisites">View Prerequisites</div>
+</div>
+
+<ul class="float-Holder" id="main-header">
   <li class="float-Element float-Highlight float-All">
     <a data-scroll='top' class="float-Contents">
       <h2>All <img src="../assets/icons/research_icon.png" class="float-Image"> </h2>
@@ -67,17 +76,22 @@
     </div>
   </li>
 </ul>
-<div id="tech-tree" style="margin-top:50px">
-  <div id="tech-tree-physics">
+<!-- Main Tech Tree Container -->
+<div id="main-tech-tree" class="prerequisite-content active">
+  <div id="tech-tree" style="margin-top:50px">
+    <div id="tech-tree-physics">
 
-  </div>
-  <div id="tech-tree-society">
+    </div>
+    <div id="tech-tree-society">
 
-  </div>
-  <div id="tech-tree-engineering">
+    </div>
+    <div id="tech-tree-engineering">
 
-  </div>
-  <div id="tech-tree-anomalies" class="float-NoDisplay">
+    </div>
+    <div id="tech-tree-anomalies" class="float-NoDisplay">
 
+    </div>
   </div>
 </div>
+
+<!-- Prerequisite Tree Containers will be dynamically added here -->

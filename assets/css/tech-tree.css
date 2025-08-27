@@ -546,3 +546,106 @@ span.tier-4 {
 span.tier-5 {
     color: #ff8000;
 }
+
+/*********************************
+    Prerequisite Tabs
+**********************************/
+
+.prerequisite-tabs {
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    background: #2a2a2a;
+    border-bottom: 2px solid #4396E2;
+    z-index: 10000;
+    height: 40px;
+    overflow-x: auto;
+    white-space: nowrap;
+}
+
+.prerequisite-tab {
+    display: inline-block;
+    padding: 8px 20px;
+    background: #333;
+    color: #fff;
+    border-right: 1px solid #555;
+    cursor: pointer;
+    font-family: 'Arimo', Verdana;
+    font-size: 12px;
+    height: 24px;
+    line-height: 24px;
+    position: relative;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.prerequisite-tab:hover {
+    background: #444;
+}
+
+.prerequisite-tab.active {
+    background: #4396E2;
+    color: #fff;
+}
+
+.prerequisite-tab .close-btn {
+    margin-left: 10px;
+    color: #ccc;
+    font-weight: bold;
+    float: right;
+    font-size: 14px;
+    line-height: 20px;
+}
+
+.prerequisite-tab .close-btn:hover {
+    color: #fff;
+}
+
+.prerequisite-content {
+    display: none;
+    margin-top: 90px; /* Adjust for both header bars */
+}
+
+.prerequisite-content.active {
+    display: block;
+}
+
+.float-Holder.with-prereq-tabs {
+    top: 40px;
+}
+
+.tech-context-menu {
+    position: absolute;
+    background: #333;
+    border: 1px solid #555;
+    border-radius: 4px;
+    padding: 5px 0;
+    z-index: 10001;
+    display: none;
+    font-family: 'Arimo', Verdana;
+    font-size: 12px;
+}
+
+.tech-context-menu-item {
+    padding: 8px 15px;
+    color: #fff;
+    cursor: pointer;
+}
+
+.tech-context-menu-item:hover {
+    background: #4396E2;
+}
+
+.tech.target-tech {
+    border: 3px solid #ff6b35 !important;
+    box-shadow: 0 0 15px #ff6b35 !important;
+    animation: pulse-target 2s infinite;
+}
+
+@keyframes pulse-target {
+    0% { box-shadow: 0 0 15px #ff6b35; }
+    50% { box-shadow: 0 0 25px #ff6b35, 0 0 35px #ff6b35; }
+    100% { box-shadow: 0 0 15px #ff6b35; }
+}
