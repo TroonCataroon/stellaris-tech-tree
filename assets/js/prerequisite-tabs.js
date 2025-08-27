@@ -198,7 +198,18 @@ function switchToPrerequisiteTab() {
     // Show prerequisite overlay
     if (prerequisiteOverlay) {
         prerequisiteOverlay.classList.add('active');
+        // Sync all prerequisite nodes with main tech tree
+        syncAllPrerequisiteNodes();
     }
+}
+
+// Sync all prerequisite nodes with the main tech tree
+function syncAllPrerequisiteNodes() {
+    $('#prerequisite-overlay .tech').each(function() {
+        let prereqNode = $(this);
+        let techKey = prereqNode.attr('id').replace('prereq-', '');
+        syncPrerequisiteNodeWithMain(techKey);
+    });
 }
 
 // Show the prerequisite overlay with content
@@ -218,9 +229,10 @@ function showPrerequisiteOverlay(techKey, tech, prerequisites) {
         </div>
     `;
 
-    // Initialize tooltips for the new content
+    // Initialize tooltips and node status for the new content
     setTimeout(() => {
         init_tooltips_for_container('#prerequisite-overlay');
+        initPrerequisiteNodeStatus();
     }, 100);
 }
 
@@ -286,8 +298,13 @@ function buildPrerequisiteTree(targetTechKey, prerequisites) {
 function createTechNodeHTML(tech, techClass, isTarget = false) {
     let targetStyle = isTarget ? 'border: 3px solid #ff6b35; box-shadow: 0 0 10px #ff6b35;' : '';
     
+    // Check if this tech is already active in the main tech tree
+    let isActive = $('#' + tech.key + ' div.node-status').hasClass('active');
+    let activeClass = isActive ? ' active' : '';
+    let nodeStatusClass = isActive ? ' active' : '';
+    
     return `
-        <div class="tech ${techClass}" id="prereq-${tech.key}" style="${targetStyle}">
+        <div class="tech ${techClass}${activeClass}" id="prereq-${tech.key}" style="${targetStyle}">
             <div class="icon lozad" data-background-image="../assets/img/${tech.key}.png" style="background-image: url('../assets/img/${tech.key}.png');"></div>
             <p class="node-name" title="${tech.name}">${tech.name}</p>
             <p class="node-title">
@@ -299,6 +316,7 @@ function createTechNodeHTML(tech, techClass, isTarget = false) {
             <p class="node-desc">
                 ${tech.tier > 0 ? `Cost: <span class="${tech.area}-research">${tech.cost}, Weight: ${tech.base_weight}</span>` : ''}
             </p>
+            <div class="node-status${nodeStatusClass}"></div>
             <div class="extra-data">
                 <div class="tooltip-header">Description</div>
                 <div class="tooltip-content" style="max-width:320px">${tech.description}</div>
@@ -363,6 +381,69 @@ function closePrerequisiteTab() {
     $("#tech-tree-society").removeClass("float-NoDisplay");
     $("#tech-tree-engineering").removeClass("float-NoDisplay");
     $("#tech-tree-anomalies").addClass("float-NoDisplay");
+}
+
+// Initialize node status functionality for prerequisite overlay
+function initPrerequisiteNodeStatus() {
+    $('#prerequisite-overlay .tech .node-status:not(.status-loaded)').each(function() {
+        $(this).on('click', function(e) {
+            e.stopPropagation();
+            
+            let prereqNode = $(this).parent();
+            let techKey = prereqNode.attr('id').replace('prereq-', '');
+            let mainTechNode = $('#' + techKey);
+            
+            if (mainTechNode.length > 0) {
+                // Get the area for this tech
+                let area = mainTechNode.hasClass('physics') ? 'physics' : 
+                          mainTechNode.hasClass('society') ? 'society' :
+                          mainTechNode.hasClass('engineering') ? 'engineering' : 'anomaly';
+                
+                // Toggle the main tech tree node
+                let isCurrentlyActive = mainTechNode.find('.node-status').hasClass('active');
+                
+                if (area !== 'anomaly') {
+                    // Use the existing updateResearch function for regular techs
+                    updateResearch(area, techKey, !isCurrentlyActive);
+                } else {
+                    // Handle anomaly techs differently
+                    if (isCurrentlyActive) {
+                        mainTechNode.find('.node-status').removeClass('active');
+                        mainTechNode.removeClass('active');
+                    } else {
+                        mainTechNode.find('.node-status').addClass('active');
+                        mainTechNode.addClass('active');
+                    }
+                }
+                
+                // Update the prerequisite node to match the main tech tree
+                setTimeout(() => {
+                    syncPrerequisiteNodeWithMain(techKey);
+                }, 50);
+            }
+        });
+        
+        $(this).addClass('status-loaded');
+    });
+}
+
+// Sync prerequisite node status with main tech tree
+function syncPrerequisiteNodeWithMain(techKey) {
+    let mainTechNode = $('#' + techKey);
+    let prereqNode = $('#prereq-' + techKey);
+    
+    if (mainTechNode.length > 0 && prereqNode.length > 0) {
+        let isMainActive = mainTechNode.find('.node-status').hasClass('active');
+        let prereqStatus = prereqNode.find('.node-status');
+        
+        if (isMainActive) {
+            prereqStatus.addClass('active');
+            prereqNode.addClass('active');
+        } else {
+            prereqStatus.removeClass('active');
+            prereqNode.removeClass('active');
+        }
+    }
 }
 
 // Initialize tooltips for a specific container
