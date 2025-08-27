@@ -548,72 +548,57 @@ span.tier-5 {
 }
 
 /*********************************
-    Prerequisite Tabs
+    Integrated Prerequisite Tab
 **********************************/
 
-.prerequisite-tabs {
-    position: fixed;
-    top: 0px;
-    left: 0px;
-    right: 0px;
-    background: #2a2a2a;
-    border-bottom: 2px solid #4396E2;
-    z-index: 10000;
-    height: 40px;
-    overflow-x: auto;
-    white-space: nowrap;
+.float-Element.prerequisite-tab {
+    background: #4396E2;
+    max-width: 250px;
+    position: relative;
 }
 
-.prerequisite-tab {
-    display: inline-block;
-    padding: 8px 20px;
-    background: #333;
-    color: #fff;
-    border-right: 1px solid #555;
-    cursor: pointer;
-    font-family: 'Arimo', Verdana;
-    font-size: 12px;
-    height: 24px;
-    line-height: 24px;
-    position: relative;
-    max-width: 200px;
+.float-Element.prerequisite-tab .float-Contents {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-right: 5px;
+}
+
+.float-Element.prerequisite-tab .tech-name {
     overflow: hidden;
     text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 180px;
 }
 
-.prerequisite-tab:hover {
-    background: #444;
-}
-
-.prerequisite-tab.active {
-    background: #4396E2;
+.float-Element.prerequisite-tab .close-btn {
     color: #fff;
-}
-
-.prerequisite-tab .close-btn {
-    margin-left: 10px;
-    color: #ccc;
     font-weight: bold;
-    float: right;
-    font-size: 14px;
-    line-height: 20px;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 2px 6px;
+    margin-left: 8px;
+    border-radius: 2px;
 }
 
-.prerequisite-tab .close-btn:hover {
-    color: #fff;
+.float-Element.prerequisite-tab .close-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
 }
 
-.prerequisite-content {
+.prerequisite-overlay {
+    position: fixed;
+    top: 50px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: #474747;
+    z-index: 1000;
+    overflow-y: auto;
     display: none;
-    margin-top: 90px; /* Adjust for both header bars */
 }
 
-.prerequisite-content.active {
+.prerequisite-overlay.active {
     display: block;
-}
-
-.float-Holder.with-prereq-tabs {
-    top: 40px;
 }
 
 .tech-context-menu {

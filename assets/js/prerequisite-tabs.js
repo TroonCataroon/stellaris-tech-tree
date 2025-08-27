@@ -1,9 +1,9 @@
 'use strict';
 
 // Global variables for prerequisite functionality
-var prerequisiteTabs = [];
 var activePrerequisiteTab = null;
 var techDataCache = {};
+var prerequisiteOverlay = null;
 
 // Load all tech data into cache for fast lookup
 function loadTechDataCache() {
@@ -97,19 +97,22 @@ function extractAllPrerequisites(techKey, visited = new Set()) {
     return prerequisites;
 }
 
-// Create a new prerequisite tab
+// Create the prerequisite overlay content
+function createPrerequisiteOverlay() {
+    if (!prerequisiteOverlay) {
+        prerequisiteOverlay = document.createElement('div');
+        prerequisiteOverlay.className = 'prerequisite-overlay';
+        prerequisiteOverlay.id = 'prerequisite-overlay';
+        document.body.appendChild(prerequisiteOverlay);
+    }
+    return prerequisiteOverlay;
+}
+
+// Create and show prerequisite tab and overlay
 function createPrerequisiteTab(techKey) {
     let techData = findTechByKey(techKey);
     if (!techData) {
         console.error('Tech not found:', techKey);
-        return;
-    }
-
-    let tabId = 'prereq-tab-' + techKey;
-    
-    // Check if tab already exists
-    if (document.getElementById(tabId)) {
-        switchToPrerequisiteTab(tabId);
         return;
     }
 
@@ -121,34 +124,56 @@ function createPrerequisiteTab(techKey) {
         return;
     }
 
-    // Create tab element
-    let tabsContainer = document.getElementById('prerequisite-tabs');
-    let tab = document.createElement('div');
-    tab.className = 'prerequisite-tab';
-    tab.id = tabId;
-    tab.innerHTML = `
-        <span title="${tech.name}">${tech.name}</span>
-        <span class="close-btn" onclick="closePrerequisiteTab('${tabId}')">&times;</span>
-    `;
+    // Remove existing prerequisite tab if any
+    closePrerequisiteTab();
+
+    // Find the Events tab and search bar to position between them
+    let eventsTab = $('.float-Anomalies').parent();
+    let searchTab = $('.float-Search').parent();
     
-    tab.onclick = function(e) {
-        if (e.target.className !== 'close-btn') {
-            switchToPrerequisiteTab(tabId);
+    // Create the prerequisite tab element
+    let prereqTab = $(`
+        <li class="float-Element prerequisite-tab">
+            <a class="float-Contents">
+                <h2>
+                    <span class="tech-name" title="${tech.name}">📋 ${tech.name}</span>
+                    <span class="close-btn">&times;</span>
+                </h2>
+            </a>
+        </li>
+    `);
+
+    // Insert the tab between Events and Search
+    prereqTab.insertAfter(eventsTab);
+
+    // Add click handlers
+    prereqTab.find('.close-btn').on('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        closePrerequisiteTab();
+    });
+
+    prereqTab.find('.float-Contents').on('click', function(e) {
+        if (!$(e.target).hasClass('close-btn')) {
+            showPrerequisiteOverlay(techKey, tech, prerequisites);
         }
-    };
+    });
 
-    tabsContainer.appendChild(tab);
+    // Create and show the overlay
+    showPrerequisiteOverlay(techKey, tech, prerequisites);
+    
+    activePrerequisiteTab = prereqTab;
+}
 
-    // Create content container
-    let contentContainer = document.createElement('div');
-    contentContainer.className = 'prerequisite-content';
-    contentContainer.id = 'content-' + tabId;
+// Show the prerequisite overlay with content
+function showPrerequisiteOverlay(techKey, tech, prerequisites) {
+    let overlay = createPrerequisiteOverlay();
     
     // Build prerequisite tree structure
     let prereqTree = buildPrerequisiteTree(techKey, prerequisites);
-    contentContainer.innerHTML = `
-        <div style="margin-top:50px">
-            <h2 style="color: #4396E2; text-align: center; font-family: 'Arimo', Verdana; margin: 20px;">
+    overlay.innerHTML = `
+        <div style="padding: 20px;">
+            <h2 style="color: #4396E2; text-align: center; font-family: 'Arimo', Verdana; margin: 20px 0;">
                 Prerequisites for: ${tech.name}
             </h2>
             <div id="prereq-tree-${techKey}">
@@ -157,25 +182,13 @@ function createPrerequisiteTab(techKey) {
         </div>
     `;
 
-    document.body.appendChild(contentContainer);
-
-    // Add to tabs array
-    prerequisiteTabs.push({
-        id: tabId,
-        techKey: techKey,
-        tech: tech
-    });
-
-    // Show tabs container if hidden
-    tabsContainer.style.display = 'block';
-    document.getElementById('main-header').classList.add('with-prereq-tabs');
-
-    // Switch to new tab
-    switchToPrerequisiteTab(tabId);
+    // Hide main tech tree and show overlay
+    $('#tech-tree').hide();
+    overlay.classList.add('active');
 
     // Initialize tooltips for the new content
     setTimeout(() => {
-        init_tooltips_for_container('#content-' + tabId);
+        init_tooltips_for_container('#prerequisite-overlay');
     }, 100);
 }
 
@@ -294,61 +307,19 @@ function getAreaColor(area) {
     }
 }
 
-// Switch to a specific prerequisite tab
-function switchToPrerequisiteTab(tabId) {
-    // Hide all content
-    document.querySelectorAll('.prerequisite-content').forEach(content => {
-        content.classList.remove('active');
-    });
-
-    // Show selected content
-    let contentId = 'content-' + tabId;
-    let content = document.getElementById(contentId);
-    if (content) {
-        content.classList.add('active');
-    } else {
-        // Show main tech tree if no prerequisite content
-        document.getElementById('main-tech-tree').classList.add('active');
-    }
-
-    // Update tab styles
-    document.querySelectorAll('.prerequisite-tab').forEach(tab => {
-        tab.classList.remove('active');
-    });
-    document.getElementById(tabId).classList.add('active');
-
-    activePrerequisiteTab = tabId;
-}
-
-// Close a prerequisite tab
-function closePrerequisiteTab(tabId) {
-    // Remove tab element
-    let tab = document.getElementById(tabId);
-    if (tab) {
-        tab.remove();
-    }
-
-    // Remove content element
-    let content = document.getElementById('content-' + tabId);
-    if (content) {
-        content.remove();
-    }
-
-    // Remove from tabs array
-    prerequisiteTabs = prerequisiteTabs.filter(t => t.id !== tabId);
-
-    // If no more prerequisite tabs, hide the container
-    if (prerequisiteTabs.length === 0) {
-        document.getElementById('prerequisite-tabs').style.display = 'none';
-        document.getElementById('main-header').classList.remove('with-prereq-tabs');
-        document.getElementById('main-tech-tree').classList.add('active');
+// Close the prerequisite tab and return to main view
+function closePrerequisiteTab() {
+    if (activePrerequisiteTab) {
+        activePrerequisiteTab.remove();
         activePrerequisiteTab = null;
-    } else {
-        // Switch to first available tab
-        if (activePrerequisiteTab === tabId) {
-            switchToPrerequisiteTab(prerequisiteTabs[0].id);
-        }
     }
+    
+    if (prerequisiteOverlay) {
+        prerequisiteOverlay.classList.remove('active');
+    }
+    
+    // Show main tech tree
+    $('#tech-tree').show();
 }
 
 // Initialize tooltips for a specific container
@@ -417,21 +388,13 @@ function initPrerequisiteTabs() {
         console.log('Tech data cache loaded successfully');
         initContextMenu();
         
-        // Add click handler to main tab area to return to main view
+        // Override main navigation clicks to close prerequisite view
         $(document).on('click', '.float-Contents', function() {
-            if (prerequisiteTabs.length > 0) {
-                document.getElementById('main-tech-tree').classList.add('active');
-                document.querySelectorAll('.prerequisite-content').forEach(content => {
-                    if (content.id !== 'main-tech-tree') {
-                        content.classList.remove('active');
-                    }
-                });
-                document.querySelectorAll('.prerequisite-tab').forEach(tab => {
-                    tab.classList.remove('active');
-                });
-                activePrerequisiteTab = null;
+            if (activePrerequisiteTab && !$(this).closest('.prerequisite-tab').length) {
+                closePrerequisiteTab();
             }
         });
+        
     }).catch(error => {
         console.error('Error loading tech data cache:', error);
     });
