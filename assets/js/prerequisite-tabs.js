@@ -402,12 +402,8 @@ function initPrerequisiteTabs() {
         console.log('Tech data cache loaded successfully');
         initContextMenu();
         
-        // Override main navigation clicks to close prerequisite view
-        $(document).on('click', '.float-Contents', function() {
-            if (activePrerequisiteTab && !$(this).closest('.prerequisite-tab').length) {
-                closePrerequisiteTab();
-            }
-        });
+        // Prerequisite tab will persist across navigation switches
+        // Only closes when X button is clicked or new prerequisite is opened
         
     }).catch(error => {
         console.error('Error loading tech data cache:', error);
