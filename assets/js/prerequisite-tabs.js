@@ -206,10 +206,11 @@ function switchToPrerequisiteTab() {
 // Sync all prerequisite nodes with the main tech tree
 function syncAllPrerequisiteNodes() {
     console.log('Syncing all prerequisite nodes with main tech tree');
-    $('#prerequisite-overlay .tech').each(function() {
+    $('#prerequisite-overlay .tech[data-tech-key]').each(function() {
         let prereqNode = $(this);
         let techKey = prereqNode.attr('data-tech-key');
         if (techKey) {
+            console.log('Syncing prerequisite node for tech:', techKey);
             syncPrerequisiteNodeWithMain(techKey);
         }
     });
@@ -396,19 +397,24 @@ function initPrerequisiteNodeStatus() {
             
             let techKey = $(this).attr('data-tech-key');
             let prereqNode = $(this).parent();
-            let mainTechNode = $('#' + techKey);
+            // Only target tech nodes in the main tech tree, not in prerequisite overlay
+            let mainTechNode = $('#tech-tree #' + techKey);
             
             console.log('Clicked prerequisite checkbox for tech:', techKey);
+            console.log('Main tech nodes found:', mainTechNode.length);
             
             if (mainTechNode.length > 0) {
+                // Use the first match if there are multiple
+                let mainNode = mainTechNode.first();
+                
                 // Get the area for this tech by checking classes
                 let area = 'anomaly'; // default
-                if (mainTechNode.hasClass('physics')) area = 'physics';
-                else if (mainTechNode.hasClass('society')) area = 'society';
-                else if (mainTechNode.hasClass('engineering')) area = 'engineering';
+                if (mainNode.hasClass('physics')) area = 'physics';
+                else if (mainNode.hasClass('society')) area = 'society';
+                else if (mainNode.hasClass('engineering')) area = 'engineering';
                 
                 // Toggle the main tech tree node
-                let isCurrentlyActive = mainTechNode.find('.node-status').hasClass('active');
+                let isCurrentlyActive = mainNode.find('.node-status').hasClass('active');
                 
                 console.log('Tech area:', area, 'Currently active:', isCurrentlyActive);
                 
@@ -418,11 +424,11 @@ function initPrerequisiteNodeStatus() {
                 } else {
                     // Handle anomaly techs differently
                     if (isCurrentlyActive) {
-                        mainTechNode.find('.node-status').removeClass('active');
-                        mainTechNode.removeClass('active');
+                        mainNode.find('.node-status').removeClass('active');
+                        mainNode.removeClass('active');
                     } else {
-                        mainTechNode.find('.node-status').addClass('active');
-                        mainTechNode.addClass('active');
+                        mainNode.find('.node-status').addClass('active');
+                        mainNode.addClass('active');
                     }
                 }
                 
@@ -450,16 +456,19 @@ function initPrerequisiteNodeStatus() {
 
 // Sync prerequisite node status with main tech tree
 function syncPrerequisiteNodeWithMain(techKey) {
-    let mainTechNode = $('#' + techKey);
-    let prereqNode = $('#prereq-' + techKey);
+    // Only target tech nodes in the main tech tree, not in prerequisite overlay
+    let mainTechNode = $('#tech-tree #' + techKey);
+    let prereqNode = $('#prerequisite-overlay #prereq-' + techKey);
     
-    console.log('Syncing tech:', techKey, 'Main node found:', mainTechNode.length > 0, 'Prereq node found:', prereqNode.length > 0);
+    console.log('Syncing tech:', techKey, 'Main node found:', mainTechNode.length, 'Prereq node found:', prereqNode.length);
     
     if (mainTechNode.length > 0 && prereqNode.length > 0) {
-        let isMainActive = mainTechNode.find('.node-status').hasClass('active');
+        // Use the first match if there are multiple (shouldn't happen with specific selectors)
+        let mainNode = mainTechNode.first();
+        let isMainActive = mainNode.find('.node-status').hasClass('active');
         let prereqStatus = prereqNode.find('.node-status');
         
-        console.log('Main tech active state:', isMainActive);
+        console.log('Main tech active state:', isMainActive, 'for tech:', techKey);
         
         if (isMainActive) {
             prereqStatus.addClass('active');
@@ -471,7 +480,7 @@ function syncPrerequisiteNodeWithMain(techKey) {
         
         console.log('Prerequisite node synced for:', techKey);
     } else {
-        console.warn('Could not sync - Main or prereq node missing for:', techKey);
+        console.warn('Could not sync - Main or prereq node missing for:', techKey, '(Main:', mainTechNode.length, 'Prereq:', prereqNode.length, ')');
     }
 }
 
