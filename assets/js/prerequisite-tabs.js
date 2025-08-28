@@ -94,7 +94,18 @@ function extractAllPrerequisites(techKey, visited = new Set()) {
         }
     }
 
-    return prerequisites;
+    // Deduplicate prerequisites by key
+    let uniquePrereqs = [];
+    let seenKeys = new Set();
+    
+    for (let prereq of prerequisites) {
+        if (!seenKeys.has(prereq.key)) {
+            seenKeys.add(prereq.key);
+            uniquePrereqs.push(prereq);
+        }
+    }
+
+    return uniquePrereqs;
 }
 
 // Create the prerequisite overlay content
@@ -118,6 +129,8 @@ function createPrerequisiteTab(techKey) {
 
     let tech = techData.tech;
     let prerequisites = extractAllPrerequisites(techKey);
+    
+    console.log(`Found ${prerequisites.length} unique prerequisites for ${tech.name}`);
     
     if (prerequisites.length === 0) {
         alert('This technology has no prerequisites.');
@@ -248,13 +261,20 @@ function showPrerequisiteOverlay(techKey, tech, prerequisites) {
 function buildPrerequisiteTree(targetTechKey, prerequisites) {
     let html = '<div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px;">';
     
-    // Group prerequisites by area
+    console.log('Building prerequisite tree for:', targetTechKey, 'with', prerequisites.length, 'prerequisites');
+    
+    // Group prerequisites by area and ensure uniqueness within each area
     let groupedPrereqs = {};
     prerequisites.forEach(prereq => {
         if (!groupedPrereqs[prereq.area]) {
             groupedPrereqs[prereq.area] = [];
         }
-        groupedPrereqs[prereq.area].push(prereq);
+        
+        // Check if this tech is already in this area group
+        let alreadyExists = groupedPrereqs[prereq.area].some(existing => existing.key === prereq.key);
+        if (!alreadyExists) {
+            groupedPrereqs[prereq.area].push(prereq);
+        }
     });
 
     // Add the target tech at the end
@@ -263,22 +283,29 @@ function buildPrerequisiteTree(targetTechKey, prerequisites) {
         if (!groupedPrereqs[targetTech.area]) {
             groupedPrereqs[targetTech.area] = [];
         }
-        groupedPrereqs[targetTech.area].push({
-            key: targetTechKey,
-            tech: targetTech.tech,
-            area: targetTech.area
-        });
+        
+        // Check if target tech is already in the list (shouldn't be, but just in case)
+        let targetAlreadyExists = groupedPrereqs[targetTech.area].some(existing => existing.key === targetTechKey);
+        if (!targetAlreadyExists) {
+            groupedPrereqs[targetTech.area].push({
+                key: targetTechKey,
+                tech: targetTech.tech,
+                area: targetTech.area
+            });
+        }
     }
 
     // Create sections for each area
     for (let area in groupedPrereqs) {
         if (groupedPrereqs[area].length === 0) continue;
         
+        console.log(`Area ${area}: ${groupedPrereqs[area].length} unique techs`);
+        
         let areaColor = getAreaColor(area);
         html += `
             <div style="border: 2px solid ${areaColor}; border-radius: 8px; padding: 15px; margin: 10px; background: rgba(0,0,0,0.7);">
                 <h3 style="color: ${areaColor}; text-align: center; font-family: 'Arimo', Verdana; margin-bottom: 15px;">
-                    ${area.charAt(0).toUpperCase() + area.slice(1)} Technologies
+                    ${area.charAt(0).toUpperCase() + area.slice(1)} Technologies (${groupedPrereqs[area].length})
                 </h3>
                 <div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;">
         `;
@@ -292,6 +319,7 @@ function buildPrerequisiteTree(targetTechKey, prerequisites) {
                            (!prereq.tech.is_dangerous && prereq.tech.is_rare ? ' rare' : '') +
                            (isTarget ? ' target-tech' : '');
             
+            console.log(`Adding tech to UI: ${prereq.key} (${isTarget ? 'TARGET' : 'prerequisite'})`);
             html += createTechNodeHTML(prereq.tech, techClass, isTarget);
         });
 
@@ -462,20 +490,29 @@ function syncPrerequisiteNodeWithMain(techKey) {
     
     console.log('Syncing tech:', techKey, 'Main node found:', mainTechNode.length, 'Prereq node found:', prereqNode.length);
     
+    if (prereqNode.length > 1) {
+        console.warn(`⚠️ Found ${prereqNode.length} prerequisite nodes for ${techKey} - this indicates duplicates!`);
+        // List all the duplicate nodes
+        prereqNode.each(function(index) {
+            console.log(`  Duplicate ${index + 1}:`, this.id, 'in container:', this.parentElement.className);
+        });
+    }
+    
     if (mainTechNode.length > 0 && prereqNode.length > 0) {
         // Use the first match if there are multiple (shouldn't happen with specific selectors)
         let mainNode = mainTechNode.first();
         let isMainActive = mainNode.find('.node-status').hasClass('active');
-        let prereqStatus = prereqNode.find('.node-status');
+        let prereqStatus = prereqNode.first().find('.node-status'); // Use first prereq node
+        let firstPrereqNode = prereqNode.first();
         
         console.log('Main tech active state:', isMainActive, 'for tech:', techKey);
         
         if (isMainActive) {
             prereqStatus.addClass('active');
-            prereqNode.addClass('active');
+            firstPrereqNode.addClass('active');
         } else {
             prereqStatus.removeClass('active');
-            prereqNode.removeClass('active');
+            firstPrereqNode.removeClass('active');
         }
         
         console.log('Prerequisite node synced for:', techKey);
