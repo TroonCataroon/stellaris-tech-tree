@@ -205,10 +205,13 @@ function switchToPrerequisiteTab() {
 
 // Sync all prerequisite nodes with the main tech tree
 function syncAllPrerequisiteNodes() {
+    console.log('Syncing all prerequisite nodes with main tech tree');
     $('#prerequisite-overlay .tech').each(function() {
         let prereqNode = $(this);
-        let techKey = prereqNode.attr('id').replace('prereq-', '');
-        syncPrerequisiteNodeWithMain(techKey);
+        let techKey = prereqNode.attr('data-tech-key');
+        if (techKey) {
+            syncPrerequisiteNodeWithMain(techKey);
+        }
     });
 }
 
@@ -233,6 +236,10 @@ function showPrerequisiteOverlay(techKey, tech, prerequisites) {
     setTimeout(() => {
         init_tooltips_for_container('#prerequisite-overlay');
         initPrerequisiteNodeStatus();
+        // Sync all nodes after a short delay to ensure main tech tree is ready
+        setTimeout(() => {
+            syncAllPrerequisiteNodes();
+        }, 200);
     }, 100);
 }
 
@@ -298,13 +305,11 @@ function buildPrerequisiteTree(targetTechKey, prerequisites) {
 function createTechNodeHTML(tech, techClass, isTarget = false) {
     let targetStyle = isTarget ? 'border: 3px solid #ff6b35; box-shadow: 0 0 10px #ff6b35;' : '';
     
-    // Check if this tech is already active in the main tech tree
-    let isActive = $('#' + tech.key + ' div.node-status').hasClass('active');
-    let activeClass = isActive ? ' active' : '';
-    let nodeStatusClass = isActive ? ' active' : '';
+    // Don't check for active state here - we'll sync it later after the DOM is ready
+    // This avoids timing issues with main tech tree loading
     
     return `
-        <div class="tech ${techClass}${activeClass}" id="prereq-${tech.key}" style="${targetStyle}">
+        <div class="tech ${techClass}" id="prereq-${tech.key}" style="${targetStyle}" data-tech-key="${tech.key}">
             <div class="icon lozad" data-background-image="../assets/img/${tech.key}.png" style="background-image: url('../assets/img/${tech.key}.png');"></div>
             <p class="node-name" title="${tech.name}">${tech.name}</p>
             <p class="node-title">
@@ -316,7 +321,7 @@ function createTechNodeHTML(tech, techClass, isTarget = false) {
             <p class="node-desc">
                 ${tech.tier > 0 ? `Cost: <span class="${tech.area}-research">${tech.cost}, Weight: ${tech.base_weight}</span>` : ''}
             </p>
-            <div class="node-status${nodeStatusClass}"></div>
+            <div class="node-status" data-tech-key="${tech.key}"></div>
             <div class="extra-data">
                 <div class="tooltip-header">Description</div>
                 <div class="tooltip-content" style="max-width:320px">${tech.description}</div>
@@ -389,18 +394,23 @@ function initPrerequisiteNodeStatus() {
         $(this).on('click', function(e) {
             e.stopPropagation();
             
+            let techKey = $(this).attr('data-tech-key');
             let prereqNode = $(this).parent();
-            let techKey = prereqNode.attr('id').replace('prereq-', '');
             let mainTechNode = $('#' + techKey);
             
+            console.log('Clicked prerequisite checkbox for tech:', techKey);
+            
             if (mainTechNode.length > 0) {
-                // Get the area for this tech
-                let area = mainTechNode.hasClass('physics') ? 'physics' : 
-                          mainTechNode.hasClass('society') ? 'society' :
-                          mainTechNode.hasClass('engineering') ? 'engineering' : 'anomaly';
+                // Get the area for this tech by checking classes
+                let area = 'anomaly'; // default
+                if (mainTechNode.hasClass('physics')) area = 'physics';
+                else if (mainTechNode.hasClass('society')) area = 'society';
+                else if (mainTechNode.hasClass('engineering')) area = 'engineering';
                 
                 // Toggle the main tech tree node
                 let isCurrentlyActive = mainTechNode.find('.node-status').hasClass('active');
+                
+                console.log('Tech area:', area, 'Currently active:', isCurrentlyActive);
                 
                 if (area !== 'anomaly') {
                     // Use the existing updateResearch function for regular techs
@@ -419,7 +429,18 @@ function initPrerequisiteNodeStatus() {
                 // Update the prerequisite node to match the main tech tree
                 setTimeout(() => {
                     syncPrerequisiteNodeWithMain(techKey);
-                }, 50);
+                }, 100);
+            } else {
+                console.warn('Main tech node not found for:', techKey);
+                // Handle direct toggle for prerequisite node if main node not found
+                let isCurrentlyActive = $(this).hasClass('active');
+                if (isCurrentlyActive) {
+                    $(this).removeClass('active');
+                    prereqNode.removeClass('active');
+                } else {
+                    $(this).addClass('active');
+                    prereqNode.addClass('active');
+                }
             }
         });
         
@@ -432,9 +453,13 @@ function syncPrerequisiteNodeWithMain(techKey) {
     let mainTechNode = $('#' + techKey);
     let prereqNode = $('#prereq-' + techKey);
     
+    console.log('Syncing tech:', techKey, 'Main node found:', mainTechNode.length > 0, 'Prereq node found:', prereqNode.length > 0);
+    
     if (mainTechNode.length > 0 && prereqNode.length > 0) {
         let isMainActive = mainTechNode.find('.node-status').hasClass('active');
         let prereqStatus = prereqNode.find('.node-status');
+        
+        console.log('Main tech active state:', isMainActive);
         
         if (isMainActive) {
             prereqStatus.addClass('active');
@@ -443,6 +468,10 @@ function syncPrerequisiteNodeWithMain(techKey) {
             prereqStatus.removeClass('active');
             prereqNode.removeClass('active');
         }
+        
+        console.log('Prerequisite node synced for:', techKey);
+    } else {
+        console.warn('Could not sync - Main or prereq node missing for:', techKey);
     }
 }
 
