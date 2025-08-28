@@ -451,6 +451,8 @@ function showPrerequisiteOverlay(techKey, tech, prerequisites) {
     setTimeout(() => {
         init_tooltips_for_container('#prerequisite-overlay');
         initPrerequisiteNodeStatus();
+        // Draw connections with accurate positioning
+        drawConnectionsAfterRender(techKey);
         // Sync all nodes after a short delay to ensure main tech tree is ready
         setTimeout(() => {
             syncAllPrerequisiteNodes();
@@ -527,9 +529,9 @@ function buildPrerequisiteTree(targetTechKey, prerequisites) {
         
         html += `</div>`;
         
-        // Add connections to next tier if not the last
+        // Add connection container between tiers if not the last
         if (tierIndex < sortedTiers.length - 1) {
-            html += createConnectionsHTML(techsByTier[tier], techsByTier[sortedTiers[tierIndex + 1]], relationships);
+            html += `<div class="connection-tier" data-from-tier="${tier}" data-to-tier="${sortedTiers[tierIndex + 1]}" style="height: 60px; position: relative;"></div>`;
         }
     });
     
@@ -550,70 +552,99 @@ function buildRelationshipMap(allTechs) {
     return relationships;
 }
 
-// Create connection lines between tiers
-function createConnectionsHTML(currentTier, nextTier, relationships) {
-    if (currentTier.length === 0 || nextTier.length === 0) return '';
+// Draw connections after DOM is rendered using actual element positions
+function drawConnectionsAfterRender(targetTechKey) {
+    console.log('Drawing connections for prerequisite diagram');
     
-    let html = '<div class="connections-container" style="position: relative; height: 50px; margin: 20px 0;">';
-    
-    // Create a grid of connections showing prerequisite relationships
-    let connectionsMade = new Set();
-    
-    nextTier.forEach((nextTech, nextIndex) => {
-        if (relationships[nextTech.key]) {
-            relationships[nextTech.key].forEach(prereqKey => {
-                // Find if this prerequisite is in the current tier
-                let prereqIndex = currentTier.findIndex(tech => tech.key === prereqKey);
-                if (prereqIndex !== -1) {
-                    let connectionId = `${prereqKey}-${nextTech.key}`;
-                    if (!connectionsMade.has(connectionId)) {
-                        connectionsMade.add(connectionId);
+    // Wait for DOM to be fully rendered
+    setTimeout(() => {
+        $('.connection-tier').each(function() {
+            let connectionContainer = $(this);
+            let fromTier = connectionContainer.data('from-tier');
+            let toTier = connectionContainer.data('to-tier');
+            
+            // Find all techs in the source tier
+            let fromTechs = $(`.diagram-tier[data-tier="${fromTier}"] .diagram-tech`);
+            let toTechs = $(`.diagram-tier[data-tier="${toTier}"] .diagram-tech`);
+            
+            if (fromTechs.length === 0 || toTechs.length === 0) return;
+            
+            // Clear any existing connections
+            connectionContainer.empty();
+            
+            // Draw connections based on actual prerequisite relationships
+            toTechs.each(function() {
+                let toTech = $(this);
+                let toTechKey = toTech.data('tech-key');
+                let toTechData = findTechByKey(toTechKey);
+                
+                if (toTechData && toTechData.tech.prerequisites) {
+                    toTechData.tech.prerequisites.forEach(prereqKey => {
+                        // Find the prerequisite tech in the from tier
+                        let fromTech = fromTechs.filter(`[data-tech-key="${prereqKey}"]`);
                         
-                        // Calculate approximate positions for connections
-                        let currentTechCount = currentTier.length;
-                        let nextTechCount = nextTier.length;
-                        
-                        let fromPercent = ((prereqIndex + 0.5) / currentTechCount) * 100;
-                        let toPercent = ((nextIndex + 0.5) / nextTechCount) * 100;
-                        
-                        // Create connection line with color based on target tech's area
-                        let lineClass = `connection-line ${nextTech.area}`;
-                        
-                        // Vertical line from prerequisite
-                        html += `
-                            <div class="${lineClass} vertical" 
-                                 style="height: 20px; top: 0; left: ${fromPercent}%; width: 3px; transform: translateX(-50%);"></div>
-                        `;
-                        
-                        // Horizontal line if positions differ
-                        if (Math.abs(fromPercent - toPercent) > 5) {
-                            let left = Math.min(fromPercent, toPercent);
-                            let width = Math.abs(fromPercent - toPercent);
-                            html += `
-                                <div class="${lineClass} horizontal" 
-                                     style="width: ${width}%; left: ${left}%; top: 20px; height: 3px;"></div>
-                            `;
+                        if (fromTech.length > 0) {
+                            // Calculate positions relative to the connection container
+                            let fromTechElement = fromTech.first();
+                            let toTechElement = toTech;
+                            
+                            // Get positions relative to the diagram container
+                            let diagramContainer = $('.prerequisite-diagram');
+                            let fromOffset = fromTechElement.offset();
+                            let toOffset = toTechElement.offset();
+                            let containerOffset = diagramContainer.offset();
+                            let connectionOffset = connectionContainer.offset();
+                            
+                            if (fromOffset && toOffset && containerOffset && connectionOffset) {
+                                // Calculate centers of tech boxes
+                                let fromCenter = fromOffset.left - connectionOffset.left + fromTechElement.outerWidth() / 2;
+                                let toCenter = toOffset.left - connectionOffset.left + toTechElement.outerWidth() / 2;
+                                
+                                // Create the connection elements
+                                let area = toTechData.area;
+                                let lineClass = `connection-line ${area}`;
+                                
+                                // Vertical line from source
+                                let verticalFromHeight = 20;
+                                connectionContainer.append(`
+                                    <div class="${lineClass} vertical" 
+                                         style="position: absolute; height: ${verticalFromHeight}px; top: 0; 
+                                                left: ${fromCenter}px; width: 3px; transform: translateX(-50%);"></div>
+                                `);
+                                
+                                // Horizontal line if needed
+                                if (Math.abs(fromCenter - toCenter) > 10) {
+                                    let left = Math.min(fromCenter, toCenter);
+                                    let width = Math.abs(fromCenter - toCenter);
+                                    connectionContainer.append(`
+                                        <div class="${lineClass} horizontal" 
+                                             style="position: absolute; width: ${width}px; left: ${left}px; 
+                                                    top: ${verticalFromHeight}px; height: 3px;"></div>
+                                    `);
+                                }
+                                
+                                // Vertical line to target
+                                let verticalToHeight = 20;
+                                connectionContainer.append(`
+                                    <div class="${lineClass} vertical" 
+                                         style="position: absolute; height: ${verticalToHeight}px; 
+                                                top: ${verticalFromHeight}px; left: ${toCenter}px; 
+                                                width: 3px; transform: translateX(-50%);"></div>
+                                `);
+                                
+                                // Arrow pointing to target
+                                connectionContainer.append(`
+                                    <div class="connection-arrow down ${area}" 
+                                         style="position: absolute; top: ${verticalFromHeight + verticalToHeight - 5}px; 
+                                                left: ${toCenter}px; transform: translateX(-50%);"></div>
+                                `);
+                            }
                         }
-                        
-                        // Vertical line to target
-                        html += `
-                            <div class="${lineClass} vertical" 
-                                 style="height: 20px; top: 20px; left: ${toPercent}%; width: 3px; transform: translateX(-50%);"></div>
-                        `;
-                        
-                        // Arrow pointing down to target
-                        html += `
-                            <div class="connection-arrow down ${nextTech.area}" 
-                                 style="top: 40px; left: ${toPercent}%; transform: translateX(-50%);"></div>
-                        `;
-                    }
+                    });
                 }
             });
-        }
-    });
-    
-    html += '</div>';
-    return html;
+        });
+    }, 300); // Give more time for DOM rendering
 }
 
 // Create HTML for a single tech node

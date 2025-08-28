@@ -717,21 +717,7 @@ li.float-Element.prerequisite-tab .close-btn:hover {
 
 /* Connection lines */
 .connection-line {
-    position: absolute;
     background: #666;
-    z-index: 5;
-}
-
-.connection-line.vertical {
-    width: 2px;
-    left: 50%;
-    transform: translateX(-50%);
-}
-
-.connection-line.horizontal {
-    height: 2px;
-    top: 50%;
-    transform: translateY(-50%);
 }
 
 .connection-line.physics {
@@ -751,26 +737,20 @@ li.float-Element.prerequisite-tab .close-btn:hover {
 
 /* Arrow heads */
 .connection-arrow {
-    position: absolute;
     width: 0;
     height: 0;
-    z-index: 6;
 }
 
 .connection-arrow.down {
     border-left: 6px solid transparent;
     border-right: 6px solid transparent;
     border-top: 10px solid #666;
-    left: 50%;
-    transform: translateX(-50%);
 }
 
 .connection-arrow.up {
     border-left: 6px solid transparent;
     border-right: 6px solid transparent;
     border-bottom: 10px solid #666;
-    left: 50%;
-    transform: translateX(-50%);
 }
 
 .connection-arrow.physics {
@@ -805,4 +785,31 @@ li.float-Element.prerequisite-tab .close-btn:hover {
     width: 240px;
     height: 60px;
     margin: 0;
+}
+
+.connection-tier {
+    position: relative;
+    width: 100%;
+    min-height: 60px;
+    z-index: 5;
+}
+
+/* Improved connection line positioning */
+.connection-tier .connection-line {
+    position: absolute;
+    z-index: 6;
+}
+
+.connection-tier .connection-line.vertical {
+    width: 3px;
+}
+
+.connection-tier .connection-line.horizontal {
+    height: 3px;
+}
+
+/* Better arrow positioning */
+.connection-tier .connection-arrow {
+    position: absolute;
+    z-index: 7;
 }
