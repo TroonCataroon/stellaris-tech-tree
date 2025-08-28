@@ -647,6 +647,12 @@ li.float-Element.prerequisite-tab .close-btn:hover {
     background: #4396E2;
 }
 
+.tech-context-menu-separator {
+    height: 1px;
+    background: #555;
+    margin: 3px 10px;
+}
+
 .tech.target-tech {
     border: 3px solid #ff6b35 !important;
     box-shadow: 0 0 15px #ff6b35 !important;
@@ -657,4 +663,146 @@ li.float-Element.prerequisite-tab .close-btn:hover {
     0% { box-shadow: 0 0 15px #ff6b35; }
     50% { box-shadow: 0 0 25px #ff6b35, 0 0 35px #ff6b35; }
     100% { box-shadow: 0 0 15px #ff6b35; }
+}
+
+/*********************************
+    Relationship Diagram Styles
+**********************************/
+
+.prerequisite-diagram {
+    position: relative;
+    padding: 40px;
+    min-height: 600px;
+    background: #2a2a2a;
+    border-radius: 8px;
+    overflow: visible;
+}
+
+.diagram-title {
+    text-align: center;
+    color: #4396E2;
+    font-family: 'Arimo', Verdana;
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 30px;
+    padding: 15px;
+    background: rgba(67, 150, 226, 0.1);
+    border-radius: 8px;
+    border: 2px solid #4396E2;
+}
+
+.diagram-tier {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 40px 0;
+    position: relative;
+    min-height: 100px;
+}
+
+.diagram-tier.target-tier {
+    margin-top: 60px;
+}
+
+.diagram-tech {
+    position: relative;
+    margin: 0 20px;
+    z-index: 10;
+}
+
+.diagram-tech.target {
+    transform: scale(1.1);
+    z-index: 15;
+}
+
+/* Connection lines */
+.connection-line {
+    position: absolute;
+    background: #666;
+    z-index: 5;
+}
+
+.connection-line.vertical {
+    width: 2px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.connection-line.horizontal {
+    height: 2px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.connection-line.physics {
+    background: #4396E2;
+    box-shadow: 0 0 5px #4396E2;
+}
+
+.connection-line.society {
+    background: #5ACA9C;
+    box-shadow: 0 0 5px #5ACA9C;
+}
+
+.connection-line.engineering {
+    background: #E29C43;
+    box-shadow: 0 0 5px #E29C43;
+}
+
+/* Arrow heads */
+.connection-arrow {
+    position: absolute;
+    width: 0;
+    height: 0;
+    z-index: 6;
+}
+
+.connection-arrow.down {
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 10px solid #666;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.connection-arrow.up {
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-bottom: 10px solid #666;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.connection-arrow.physics {
+    border-top-color: #4396E2;
+    border-bottom-color: #4396E2;
+}
+
+.connection-arrow.society {
+    border-top-color: #5ACA9C;
+    border-bottom-color: #5ACA9C;
+}
+
+.connection-arrow.engineering {
+    border-top-color: #E29C43;
+    border-bottom-color: #E29C43;
+}
+
+.tier-label {
+    position: absolute;
+    left: -80px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #ccc;
+    font-family: 'Arimo', Verdana;
+    font-size: 12px;
+    font-weight: bold;
+    writing-mode: vertical-lr;
+    text-orientation: mixed;
+}
+
+.diagram-tech .tech {
+    width: 240px;
+    height: 60px;
+    margin: 0;
 }

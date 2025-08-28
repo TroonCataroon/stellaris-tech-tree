@@ -108,6 +108,210 @@ function extractAllPrerequisites(techKey, visited = new Set()) {
     return uniquePrereqs;
 }
 
+// Find all techs that depend on the given tech (following techs)
+function extractAllFollowing(techKey, visited = new Set()) {
+    if (visited.has(techKey)) {
+        return []; // Avoid infinite loops
+    }
+    visited.add(techKey);
+
+    let following = [];
+    
+    // Search through all areas for techs that have this tech as a prerequisite
+    for (let area in techDataCache) {
+        if (area === 'anomaly') {
+            // Anomalies are stored as a flat array
+            for (let tech of techDataCache[area]) {
+                if (tech.prerequisites && tech.prerequisites.includes(techKey)) {
+                    let techData = findTechByKey(tech.key);
+                    if (techData) {
+                        following.push({
+                            key: tech.key,
+                            tech: techData.tech,
+                            area: techData.area
+                        });
+                        
+                        // Recursively get techs that depend on this tech
+                        let subFollowing = extractAllFollowing(tech.key, visited);
+                        following = following.concat(subFollowing);
+                    }
+                }
+            }
+        } else {
+            // Other areas are hierarchical trees
+            let areaFollowing = findFollowingInTree(techDataCache[area], techKey, visited);
+            following = following.concat(areaFollowing);
+        }
+    }
+
+    // Deduplicate following techs by key
+    let uniqueFollowing = [];
+    let seenKeys = new Set();
+    
+    for (let followingTech of following) {
+        if (!seenKeys.has(followingTech.key)) {
+            seenKeys.add(followingTech.key);
+            uniqueFollowing.push(followingTech);
+        }
+    }
+
+    return uniqueFollowing;
+}
+
+// Recursively search through tech tree structure for following techs
+function findFollowingInTree(node, targetTechKey, visited) {
+    let following = [];
+    
+    // Check current node
+    if (node.prerequisites && node.prerequisites.includes(targetTechKey)) {
+        let techData = findTechByKey(node.key);
+        if (techData && !visited.has(node.key)) {
+            following.push({
+                key: node.key,
+                tech: techData.tech,
+                area: techData.area
+            });
+            
+            // Recursively get techs that depend on this tech
+            let subFollowing = extractAllFollowing(node.key, visited);
+            following = following.concat(subFollowing);
+        }
+    }
+    
+    // Check children
+    if (node.children) {
+        for (let child of node.children) {
+            let childFollowing = findFollowingInTree(child, targetTechKey, visited);
+            following = following.concat(childFollowing);
+        }
+    }
+    
+    return following;
+}
+
+// Select all prerequisites for a tech
+function selectAllPrerequisites(techKey) {
+    console.log('Selecting all prerequisites for:', techKey);
+    
+    let prerequisites = extractAllPrerequisites(techKey);
+    console.log('Found', prerequisites.length, 'prerequisites');
+    
+    let selectedCount = 0;
+    
+    // Select each prerequisite
+    prerequisites.forEach(prereq => {
+        let techElement = $('#' + prereq.key);
+        if (techElement.length > 0) {
+            let isActive = techElement.find('.node-status').hasClass('active');
+            if (!isActive) {
+                if (prereq.area !== 'anomaly') {
+                    updateResearch(prereq.area, prereq.key, true);
+                } else {
+                    // Handle anomaly techs
+                    techElement.find('.node-status').addClass('active');
+                    techElement.addClass('active');
+                }
+                selectedCount++;
+            }
+        }
+    });
+    
+    console.log('Selected', selectedCount, 'prerequisite techs');
+    return selectedCount;
+}
+
+// Select all following techs for a tech
+function selectAllFollowing(techKey) {
+    console.log('Selecting all following techs for:', techKey);
+    
+    let following = extractAllFollowing(techKey);
+    console.log('Found', following.length, 'following techs');
+    
+    let selectedCount = 0;
+    
+    // First, make sure the current tech is selected
+    let currentTech = $('#' + techKey);
+    if (currentTech.length > 0) {
+        let isActive = currentTech.find('.node-status').hasClass('active');
+        if (!isActive) {
+            let techData = findTechByKey(techKey);
+            if (techData) {
+                if (techData.area !== 'anomaly') {
+                    updateResearch(techData.area, techKey, true);
+                } else {
+                    currentTech.find('.node-status').addClass('active');
+                    currentTech.addClass('active');
+                }
+                selectedCount++;
+            }
+        }
+    }
+    
+    // Select each following tech
+    following.forEach(followingTech => {
+        let techElement = $('#' + followingTech.key);
+        if (techElement.length > 0) {
+            let isActive = techElement.find('.node-status').hasClass('active');
+            if (!isActive) {
+                // Check if all prerequisites are met for this tech
+                if (canActivateTech(followingTech.key)) {
+                    if (followingTech.area !== 'anomaly') {
+                        updateResearch(followingTech.area, followingTech.key, true);
+                    } else {
+                        techElement.find('.node-status').addClass('active');
+                        techElement.addClass('active');
+                    }
+                    selectedCount++;
+                } else {
+                    console.log('Cannot activate tech', followingTech.key, '- prerequisites not met');
+                }
+            }
+        }
+    });
+    
+    console.log('Selected', selectedCount, 'following techs');
+    return selectedCount;
+}
+
+// Check if a tech can be activated (all prerequisites are met)
+function canActivateTech(techKey) {
+    let techData = findTechByKey(techKey);
+    if (!techData) return false;
+    
+    if (!techData.tech.prerequisites || techData.tech.prerequisites.length === 0) {
+        return true; // No prerequisites
+    }
+    
+    // Check if all prerequisites are active
+    for (let prereqKey of techData.tech.prerequisites) {
+        let prereqElement = $('#' + prereqKey);
+        if (prereqElement.length === 0 || !prereqElement.find('.node-status').hasClass('active')) {
+            return false;
+        }
+    }
+    
+    return true;
+}
+
+// Select full chain (prerequisites and following)
+function selectFullChain(techKey) {
+    console.log('Selecting full tech chain for:', techKey);
+    
+    let prereqCount = selectAllPrerequisites(techKey);
+    
+    // Small delay to ensure prerequisites are processed
+    setTimeout(() => {
+        let followingCount = selectAllFollowing(techKey);
+        
+        let total = prereqCount + followingCount;
+        if (total > 0) {
+            alert(`Selected ${total} technologies in the chain:\n- ${prereqCount} prerequisites\n- ${followingCount} following techs`);
+        } else {
+            alert('No additional technologies were selected. All relevant techs may already be active.');
+        }
+    }, 100);
+}
+
 // Create the prerequisite overlay content
 function createPrerequisiteOverlay() {
     if (!prerequisiteOverlay) {
@@ -233,15 +437,12 @@ function syncAllPrerequisiteNodes() {
 function showPrerequisiteOverlay(techKey, tech, prerequisites) {
     let overlay = createPrerequisiteOverlay();
     
-    // Build prerequisite tree structure
-    let prereqTree = buildPrerequisiteTree(techKey, prerequisites);
+    // Build prerequisite relationship diagram
+    let prereqDiagram = buildPrerequisiteTree(techKey, prerequisites);
     overlay.innerHTML = `
         <div style="padding: 20px;">
-            <h2 style="color: #4396E2; text-align: center; font-family: 'Arimo', Verdana; margin: 20px 0;">
-                Prerequisites for: ${tech.name}
-            </h2>
-            <div id="prereq-tree-${techKey}">
-                ${prereqTree}
+            <div id="prereq-diagram-${techKey}">
+                ${prereqDiagram}
             </div>
         </div>
     `;
@@ -257,75 +458,160 @@ function showPrerequisiteOverlay(techKey, tech, prerequisites) {
     }, 100);
 }
 
-// Build HTML structure for prerequisite tree
+// Build HTML structure for prerequisite relationship diagram
 function buildPrerequisiteTree(targetTechKey, prerequisites) {
-    let html = '<div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px;">';
+    console.log('Building prerequisite diagram for:', targetTechKey, 'with', prerequisites.length, 'prerequisites');
     
-    console.log('Building prerequisite tree for:', targetTechKey, 'with', prerequisites.length, 'prerequisites');
-    
-    // Group prerequisites by area and ensure uniqueness within each area
-    let groupedPrereqs = {};
-    prerequisites.forEach(prereq => {
-        if (!groupedPrereqs[prereq.area]) {
-            groupedPrereqs[prereq.area] = [];
-        }
-        
-        // Check if this tech is already in this area group
-        let alreadyExists = groupedPrereqs[prereq.area].some(existing => existing.key === prereq.key);
-        if (!alreadyExists) {
-            groupedPrereqs[prereq.area].push(prereq);
-        }
-    });
-
-    // Add the target tech at the end
+    // Add target tech to the list
     let targetTech = findTechByKey(targetTechKey);
+    let allTechs = [...prerequisites];
     if (targetTech) {
-        if (!groupedPrereqs[targetTech.area]) {
-            groupedPrereqs[targetTech.area] = [];
-        }
-        
-        // Check if target tech is already in the list (shouldn't be, but just in case)
-        let targetAlreadyExists = groupedPrereqs[targetTech.area].some(existing => existing.key === targetTechKey);
-        if (!targetAlreadyExists) {
-            groupedPrereqs[targetTech.area].push({
-                key: targetTechKey,
-                tech: targetTech.tech,
-                area: targetTech.area
-            });
-        }
+        allTechs.push({
+            key: targetTechKey,
+            tech: targetTech.tech,
+            area: targetTech.area
+        });
     }
-
-    // Create sections for each area
-    for (let area in groupedPrereqs) {
-        if (groupedPrereqs[area].length === 0) continue;
+    
+    // Organize techs by tier for hierarchical display
+    let techsByTier = {};
+    allTechs.forEach(tech => {
+        let tier = tech.tech.tier || 0;
+        if (!techsByTier[tier]) {
+            techsByTier[tier] = [];
+        }
+        techsByTier[tier].push(tech);
+    });
+    
+    // Build prerequisite relationships map
+    let relationships = buildRelationshipMap(allTechs);
+    
+    let html = '<div class="prerequisite-diagram">';
+    
+    // Add title
+    html += `
+        <div class="diagram-title">
+            🎯 Prerequisites Chain for: ${targetTech ? targetTech.tech.name : targetTechKey}
+        </div>
+    `;
+    
+    // Sort tiers and create hierarchical display
+    let sortedTiers = Object.keys(techsByTier).sort((a, b) => parseInt(a) - parseInt(b));
+    
+    sortedTiers.forEach((tier, tierIndex) => {
+        let isTargetTier = techsByTier[tier].some(tech => tech.key === targetTechKey);
+        let tierClass = isTargetTier ? 'diagram-tier target-tier' : 'diagram-tier';
         
-        console.log(`Area ${area}: ${groupedPrereqs[area].length} unique techs`);
+        html += `<div class="${tierClass}" data-tier="${tier}">`;
         
-        let areaColor = getAreaColor(area);
-        html += `
-            <div style="border: 2px solid ${areaColor}; border-radius: 8px; padding: 15px; margin: 10px; background: rgba(0,0,0,0.7);">
-                <h3 style="color: ${areaColor}; text-align: center; font-family: 'Arimo', Verdana; margin-bottom: 15px;">
-                    ${area.charAt(0).toUpperCase() + area.slice(1)} Technologies (${groupedPrereqs[area].length})
-                </h3>
-                <div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;">
-        `;
-
-        // Sort by tier for better display
-        groupedPrereqs[area].sort((a, b) => (a.tech.tier || 0) - (b.tech.tier || 0));
-
-        groupedPrereqs[area].forEach(prereq => {
-            let isTarget = prereq.key === targetTechKey;
-            let techClass = prereq.area + (prereq.tech.is_dangerous ? ' dangerous' : '') + 
-                           (!prereq.tech.is_dangerous && prereq.tech.is_rare ? ' rare' : '') +
+        // Add tier label
+        if (tier == 0) {
+            html += `<div class="tier-label">Starting Techs</div>`;
+        } else {
+            html += `<div class="tier-label">Tier ${tier}</div>`;
+        }
+        
+        // Add techs in this tier
+        techsByTier[tier].forEach(tech => {
+            let isTarget = tech.key === targetTechKey;
+            let techClass = tech.area + (tech.tech.is_dangerous ? ' dangerous' : '') + 
+                           (!tech.tech.is_dangerous && tech.tech.is_rare ? ' rare' : '') +
                            (isTarget ? ' target-tech' : '');
             
-            console.log(`Adding tech to UI: ${prereq.key} (${isTarget ? 'TARGET' : 'prerequisite'})`);
-            html += createTechNodeHTML(prereq.tech, techClass, isTarget);
+            let diagramTechClass = isTarget ? 'diagram-tech target' : 'diagram-tech';
+            
+            html += `<div class="${diagramTechClass}" data-tech-key="${tech.key}">`;
+            html += createTechNodeHTML(tech.tech, techClass, isTarget);
+            html += `</div>`;
         });
+        
+        html += `</div>`;
+        
+        // Add connections to next tier if not the last
+        if (tierIndex < sortedTiers.length - 1) {
+            html += createConnectionsHTML(techsByTier[tier], techsByTier[sortedTiers[tierIndex + 1]], relationships);
+        }
+    });
+    
+    html += '</div>';
+    return html;
+}
 
-        html += '</div></div>';
-    }
+// Build a map of prerequisite relationships
+function buildRelationshipMap(allTechs) {
+    let relationships = {};
+    
+    allTechs.forEach(tech => {
+        if (tech.tech.prerequisites && tech.tech.prerequisites.length > 0) {
+            relationships[tech.key] = tech.tech.prerequisites;
+        }
+    });
+    
+    return relationships;
+}
 
+// Create connection lines between tiers
+function createConnectionsHTML(currentTier, nextTier, relationships) {
+    if (currentTier.length === 0 || nextTier.length === 0) return '';
+    
+    let html = '<div class="connections-container" style="position: relative; height: 50px; margin: 20px 0;">';
+    
+    // Create a grid of connections showing prerequisite relationships
+    let connectionsMade = new Set();
+    
+    nextTier.forEach((nextTech, nextIndex) => {
+        if (relationships[nextTech.key]) {
+            relationships[nextTech.key].forEach(prereqKey => {
+                // Find if this prerequisite is in the current tier
+                let prereqIndex = currentTier.findIndex(tech => tech.key === prereqKey);
+                if (prereqIndex !== -1) {
+                    let connectionId = `${prereqKey}-${nextTech.key}`;
+                    if (!connectionsMade.has(connectionId)) {
+                        connectionsMade.add(connectionId);
+                        
+                        // Calculate approximate positions for connections
+                        let currentTechCount = currentTier.length;
+                        let nextTechCount = nextTier.length;
+                        
+                        let fromPercent = ((prereqIndex + 0.5) / currentTechCount) * 100;
+                        let toPercent = ((nextIndex + 0.5) / nextTechCount) * 100;
+                        
+                        // Create connection line with color based on target tech's area
+                        let lineClass = `connection-line ${nextTech.area}`;
+                        
+                        // Vertical line from prerequisite
+                        html += `
+                            <div class="${lineClass} vertical" 
+                                 style="height: 20px; top: 0; left: ${fromPercent}%; width: 3px; transform: translateX(-50%);"></div>
+                        `;
+                        
+                        // Horizontal line if positions differ
+                        if (Math.abs(fromPercent - toPercent) > 5) {
+                            let left = Math.min(fromPercent, toPercent);
+                            let width = Math.abs(fromPercent - toPercent);
+                            html += `
+                                <div class="${lineClass} horizontal" 
+                                     style="width: ${width}%; left: ${left}%; top: 20px; height: 3px;"></div>
+                            `;
+                        }
+                        
+                        // Vertical line to target
+                        html += `
+                            <div class="${lineClass} vertical" 
+                                 style="height: 20px; top: 20px; left: ${toPercent}%; width: 3px; transform: translateX(-50%);"></div>
+                        `;
+                        
+                        // Arrow pointing down to target
+                        html += `
+                            <div class="connection-arrow down ${nextTech.area}" 
+                                 style="top: 40px; left: ${toPercent}%; transform: translateX(-50%);"></div>
+                        `;
+                    }
+                }
+            });
+        }
+    });
+    
     html += '</div>';
     return html;
 }
@@ -571,11 +857,45 @@ function initContextMenu() {
         }
     });
 
-    // Handle context menu item click
+    // Handle context menu item clicks
     $('#view-prerequisites').on('click', function() {
         if (selectedTech) {
             let techKey = selectedTech.replace('prereq-', ''); // Remove prefix if present
             createPrerequisiteTab(techKey);
+            contextMenu.style.display = 'none';
+        }
+    });
+
+    $('#select-prerequisites').on('click', function() {
+        if (selectedTech) {
+            let techKey = selectedTech.replace('prereq-', ''); // Remove prefix if present
+            let count = selectAllPrerequisites(techKey);
+            if (count > 0) {
+                alert(`Selected ${count} prerequisite technologies for the selected tech.`);
+            } else {
+                alert('No prerequisite technologies were selected. They may already be active or the tech has no prerequisites.');
+            }
+            contextMenu.style.display = 'none';
+        }
+    });
+
+    $('#select-following').on('click', function() {
+        if (selectedTech) {
+            let techKey = selectedTech.replace('prereq-', ''); // Remove prefix if present
+            let count = selectAllFollowing(techKey);
+            if (count > 0) {
+                alert(`Selected ${count} following technologies that depend on the selected tech.`);
+            } else {
+                alert('No following technologies were selected. They may already be active or no techs depend on this one.');
+            }
+            contextMenu.style.display = 'none';
+        }
+    });
+
+    $('#select-chain').on('click', function() {
+        if (selectedTech) {
+            let techKey = selectedTech.replace('prereq-', ''); // Remove prefix if present
+            selectFullChain(techKey);
             contextMenu.style.display = 'none';
         }
     });
