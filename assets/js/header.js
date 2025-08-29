@@ -1,3 +1,4 @@
+alert("🚨 HEADER.JS EXECUTING NOW!");
 console.log("🔥 HEADER.JS LOADING STARTED");
 
 // Function taken from SO user "gpvos" , thank you!
