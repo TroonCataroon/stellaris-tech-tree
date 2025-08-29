@@ -139,7 +139,7 @@ $(document).ready(function(){
     
     // Events loading functionality
     window.loadEventsContent = function() {
-        $.getJSON('../events.json', function(data) {
+        $.getJSON('./events.json', function(data) {
             displayEventsData(data);
         }).fail(function() {
             console.log("Failed to load events.json");
