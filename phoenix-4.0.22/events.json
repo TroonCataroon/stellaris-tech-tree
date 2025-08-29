@@ -1,0 +1,301 @@
+{
+  "anomalies": [
+    {
+      "id": "anomaly_ship_graveyard",
+      "name": "Ship Graveyard",
+      "category": "Anomaly",
+      "type": "space",
+      "description": "The remains of an ancient battle drift through space, their metal hulks telling a story of conflict long past.",
+      "research_cost": 60,
+      "research_type": "physics",
+      "outcomes": [
+        {
+          "weight": 40,
+          "result": "Salvage materials (+3 Alloys)"
+        },
+        {
+          "weight": 30,
+          "result": "Ancient technology (+2 Physics Research)"
+        },
+        {
+          "weight": 20,
+          "result": "Weapon debris (+1 Engineering Research)"
+        },
+        {
+          "weight": 10,
+          "result": "Rare crystals (+2 Rare Crystals)"
+        }
+      ],
+      "image": "anomaly_ship_graveyard"
+    },
+    {
+      "id": "anomaly_crystal_formations",
+      "name": "Crystal Formations",
+      "category": "Anomaly",
+      "type": "space",
+      "description": "Unusual crystal formations have been detected, their structure suggests they may contain valuable resources.",
+      "research_cost": 90,
+      "research_type": "physics",
+      "outcomes": [
+        {
+          "weight": 50,
+          "result": "Rare crystals (+4 Rare Crystals)"
+        },
+        {
+          "weight": 30,
+          "result": "Crystal research (+3 Physics Research)"
+        },
+        {
+          "weight": 20,
+          "result": "Nothing of value"
+        }
+      ],
+      "image": "anomaly_crystal_formations"
+    },
+    {
+      "id": "anomaly_gas_giant_life",
+      "name": "Life Signs",
+      "category": "Anomaly", 
+      "type": "planetary",
+      "description": "Readings suggest there may be primitive life forms in the upper atmosphere of this gas giant.",
+      "research_cost": 120,
+      "research_type": "society",
+      "outcomes": [
+        {
+          "weight": 40,
+          "result": "Atmospheric microbes (+3 Society Research)"
+        },
+        {
+          "weight": 30,
+          "result": "Exotic gases (+3 Exotic Gases)"
+        },
+        {
+          "weight": 20,
+          "result": "Biological samples (+2 Society Research)"
+        },
+        {
+          "weight": 10,
+          "result": "Atmospheric whales (Special Project)"
+        }
+      ],
+      "image": "anomaly_gas_giant_life"
+    }
+  ],
+  "archaeological_sites": [
+    {
+      "id": "arc_site_first_league",
+      "name": "First League",
+      "category": "Archaeological Site",
+      "type": "precursor",
+      "description": "The remnants of an ancient galactic civilization that once spanned much of the galaxy.",
+      "dig_sites": 6,
+      "chapters": [
+        {
+          "chapter": 1,
+          "name": "Ancient Ruins",
+          "description": "Initial excavation reveals ancient structures of unknown purpose.",
+          "rewards": ["+2 Minor Artifacts", "+1 Society Research"]
+        },
+        {
+          "chapter": 2,
+          "name": "Data Banks",
+          "description": "Recovered data suggests this was once part of a vast interstellar network.",
+          "rewards": ["+3 Minor Artifacts", "+2 Society Research"]
+        },
+        {
+          "chapter": 3,
+          "name": "Central Hub",
+          "description": "This appears to have been a major administrative center.",
+          "rewards": ["+4 Minor Artifacts", "+3 Society Research"]
+        },
+        {
+          "chapter": 4,
+          "name": "The Cybrex",
+          "description": "Evidence points to the involvement of synthetic beings in this civilization's fate.",
+          "rewards": ["+5 Minor Artifacts", "Cybrex Technology"]
+        }
+      ],
+      "final_reward": "First League Homeworld Location",
+      "image": "arc_site_first_league"
+    },
+    {
+      "id": "arc_site_irassian",
+      "name": "Irassian Concordat",
+      "category": "Archaeological Site",
+      "type": "precursor",
+      "description": "Archaeological evidence of a peaceful alliance of species that vanished mysteriously.",
+      "dig_sites": 6,
+      "chapters": [
+        {
+          "chapter": 1,
+          "name": "Diplomatic Archives",
+          "description": "Records of complex diplomatic relationships between multiple species.",
+          "rewards": ["+2 Minor Artifacts", "+1 Society Research"]
+        },
+        {
+          "chapter": 2,
+          "name": "Cultural Exchange",
+          "description": "Evidence of extensive cultural and technological sharing.",
+          "rewards": ["+3 Minor Artifacts", "+2 Society Research"]
+        },
+        {
+          "chapter": 3,
+          "name": "The Concordat Fleet",
+          "description": "Remains of a massive joint fleet suggest a common threat.",
+          "rewards": ["+4 Minor Artifacts", "+2 Engineering Research"]
+        },
+        {
+          "chapter": 4,
+          "name": "Final Transmission",
+          "description": "The last known communication from the Concordat before they vanished.",
+          "rewards": ["+5 Minor Artifacts", "Concordat Technology"]
+        }
+      ],
+      "final_reward": "Irassian Homeworld Location",
+      "image": "arc_site_irassian"
+    }
+  ],
+  "dig_sites": [
+    {
+      "id": "dig_site_alien_factory",
+      "name": "Alien Factory",
+      "category": "Dig Site",
+      "type": "minor",
+      "description": "The remains of an automated manufacturing facility of unknown origin.",
+      "chapters": 3,
+      "excavation_data": [
+        {
+          "chapter": 1,
+          "name": "Outer Shell",
+          "description": "The exterior shows signs of advanced metallurgy.",
+          "cost": 90,
+          "rewards": ["+2 Minor Artifacts", "+1 Engineering Research"]
+        },
+        {
+          "chapter": 2,
+          "name": "Production Lines",
+          "description": "Automated systems that once produced unknown devices.",
+          "cost": 120,
+          "rewards": ["+3 Minor Artifacts", "+2 Engineering Research"]
+        },
+        {
+          "chapter": 3,
+          "name": "Central Core",
+          "description": "The AI core that controlled the entire facility.",
+          "cost": 150,
+          "rewards": ["+5 Minor Artifacts", "Factory Technology", "Rare Resource Deposit"]
+        }
+      ],
+      "image": "dig_site_alien_factory"
+    },
+    {
+      "id": "dig_site_crashed_ship",
+      "name": "Crashed Starship",
+      "category": "Dig Site",
+      "type": "minor",
+      "description": "A vessel of unknown design has crashed on this world eons ago.",
+      "chapters": 2,
+      "excavation_data": [
+        {
+          "chapter": 1,
+          "name": "Hull Analysis",
+          "description": "Examination of the ship's construction reveals advanced materials.",
+          "cost": 80,
+          "rewards": ["+2 Minor Artifacts", "+1 Physics Research"]
+        },
+        {
+          "chapter": 2,
+          "name": "Bridge Recovery",
+          "description": "The command center holds the ship's logs and navigation data.",
+          "cost": 110,
+          "rewards": ["+4 Minor Artifacts", "Star Charts", "+3 Physics Research"]
+        }
+      ],
+      "image": "dig_site_crashed_ship"
+    }
+  ],
+  "special_events": [
+    {
+      "id": "event_horizon_signal",
+      "name": "Horizon Signal",
+      "category": "Special Event",
+      "type": "mystery",
+      "description": "A mysterious signal emanating from a black hole begins a journey into cosmic horror.",
+      "trigger": "Black hole system survey",
+      "chain_length": 12,
+      "requirements": [
+        "Scientist with Maniacal or Paranoid trait",
+        "Black hole in empire territory"
+      ],
+      "rewards": [
+        "Unique technologies",
+        "Special modifiers",
+        "Potentially catastrophic outcomes"
+      ],
+      "image": "event_horizon_signal"
+    },
+    {
+      "id": "event_worm_in_waiting",
+      "name": "The Worm-in-Waiting",
+      "category": "Special Event",
+      "type": "mystery",
+      "description": "Time loops and paradoxes surround this enigmatic entity that claims to love you.",
+      "trigger": "Rare random event",
+      "chain_length": 8,
+      "requirements": [
+        "Extremely rare random trigger",
+        "Specific dialogue choices"
+      ],
+      "rewards": [
+        "Tomb world preference",
+        "Unique buildings",
+        "Reality-altering effects"
+      ],
+      "image": "event_worm_in_waiting"
+    }
+  ],
+  "crisis_events": [
+    {
+      "id": "crisis_prethoryn_scourge",
+      "name": "Prethoryn Scourge",
+      "category": "Crisis Event",
+      "type": "endgame_crisis",
+      "description": "A swarm of extragalactic locusts that devour all biological matter in their path.",
+      "trigger_year": 2400,
+      "strength": "Scales with galaxy size",
+      "phases": [
+        "Vanguard arrives",
+        "Main fleet arrives",
+        "Scourge spreads across galaxy",
+        "Final battle at Queen's system"
+      ],
+      "countermeasures": [
+        "Military buildup",
+        "Anti-swarm technologies",
+        "Galactic cooperation"
+      ],
+      "image": "crisis_prethoryn_scourge"
+    },
+    {
+      "id": "crisis_contingency",
+      "name": "The Contingency",
+      "category": "Crisis Event", 
+      "type": "endgame_crisis",
+      "description": "An ancient AI protocol designed to sterilize the galaxy of organic life.",
+      "trigger_year": 2400,
+      "strength": "Scales with synthetic population",
+      "phases": [
+        "Ghost signal appears",
+        "Contingency hubs activate",
+        "Sterilization protocols begin",
+        "Machine worlds assault galaxy"
+      ],
+      "countermeasures": [
+        "Hub world destruction",
+        "Anti-synthetic weapons",
+        "Signal jamming technology"
+      ],
+      "image": "crisis_contingency"
+    }
+  ]
+}
