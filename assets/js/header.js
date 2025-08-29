@@ -8,12 +8,18 @@ String.prototype.format = function () {
     });
   };
 $(document).ready(function(){
+    console.log("header.js loaded and DOM ready");
+    
+    // Wait a bit to ensure all elements are in the DOM
+    setTimeout(function() {
+        console.log("Setting up click handlers for .float-Contents");
+        
+        // Check if Events tab exists
+        console.log("Events tab exists:", $(".float-Events").length > 0);
+        console.log("All float-Element classes:", $(".float-Element").map(function(){ return this.className; }).get());
 
-    // Main function
-
-    console.log("Setting up click handlers for .float-Contents");
-    $(".float-Contents").click(function (e) {
-        console.log("float-Contents clicked! Parent classes:", $(this).parent().attr('class')); 
+        // Main function
+        $(".float-Contents").off('click').on('click', function (e) { 
         $(".float-Element").removeClass("float-Highlight");
         $(".float-Element").addClass("float-Lowlight");
         $(this).parent().removeClass("float-Lowlight");
@@ -69,10 +75,12 @@ $(document).ready(function(){
             $("#tech-tree-events").removeClass("float-NoDisplay");
             console.log("About to call loadEventsContent");
             loadEventsContent();
-        }
-    });
+                 }
+     });
+     
+     }, 100); // Wait 100ms for DOM to be fully ready
 
-    // Make some button go to the top of the page
+     // Make some button go to the top of the page
     $("a[data-scroll='top']").click(function() {
         window.scrollTo(0,0);
     });
