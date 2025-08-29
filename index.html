@@ -118,7 +118,17 @@
             href: '../assets/css/tech-tree.css'
         });
         $('body').load('../assets/html/body.html', function() {
-            $('<script>').appendTo('head').attr({ src: '../assets/js/header.js' });
+            console.log("🔥 Body.html loaded, now loading scripts...");
+            
+            const headerScript = $('<script>').attr({ src: '../assets/js/header.js' });
+            headerScript.on('load', function() {
+                console.log("✅ header.js loaded successfully");
+            });
+            headerScript.on('error', function() {
+                console.log("❌ header.js failed to load");
+            });
+            $('head').append(headerScript);
+            
             $('<script>').appendTo('head').attr({ src: '../assets/js/tech-tracking.js' });
             $('<script>').appendTo('head').attr({ src: '../assets/js/tech-tree.js' });
             $('<script>').appendTo('head').attr({ src: '../assets/js/prerequisite-tabs.js' });
