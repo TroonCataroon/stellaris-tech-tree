@@ -23,6 +23,7 @@ $(document).ready(function(){
             $("#tech-tree-society").addClass("float-NoDisplay");
             $("#tech-tree-engineering").addClass("float-NoDisplay");
             $("#tech-tree-anomalies").addClass("float-NoDisplay");
+            $("#tech-tree-events").addClass("float-NoDisplay");
         }
         if($(this).parent().hasClass("float-Society"))
         {
@@ -30,6 +31,7 @@ $(document).ready(function(){
             $("#tech-tree-society").removeClass("float-NoDisplay");
             $("#tech-tree-engineering").addClass("float-NoDisplay");
             $("#tech-tree-anomalies").addClass("float-NoDisplay");
+            $("#tech-tree-events").addClass("float-NoDisplay");
         }
         if($(this).parent().hasClass("float-Engineering"))
         {
@@ -37,6 +39,7 @@ $(document).ready(function(){
             $("#tech-tree-society").addClass("float-NoDisplay");
             $("#tech-tree-engineering").removeClass("float-NoDisplay");
             $("#tech-tree-anomalies").addClass("float-NoDisplay");
+            $("#tech-tree-events").addClass("float-NoDisplay");
         }
         if($(this).parent().hasClass("float-All"))
         {
@@ -44,6 +47,7 @@ $(document).ready(function(){
             $("#tech-tree-society").removeClass("float-NoDisplay");
             $("#tech-tree-engineering").removeClass("float-NoDisplay");
             $("#tech-tree-anomalies").addClass("float-NoDisplay");
+            $("#tech-tree-events").addClass("float-NoDisplay");
         }
         if($(this).parent().hasClass("float-Anomalies"))
         {
@@ -51,6 +55,8 @@ $(document).ready(function(){
             $("#tech-tree-society").addClass("float-NoDisplay");
             $("#tech-tree-engineering").addClass("float-NoDisplay");
             $("#tech-tree-anomalies").removeClass("float-NoDisplay");
+            $("#tech-tree-events").removeClass("float-NoDisplay");
+            loadEventsContent();
         }
     });
 
@@ -122,5 +128,99 @@ $(document).ready(function(){
     bgCss += "linear-gradient({0},{1})".format(gradientTop,gradientBottom);
 
     $(".float-RightElement").css("background",bgCss);
+    
+    // Events loading functionality
+    window.loadEventsContent = function() {
+        $.getJSON('../events.json', function(data) {
+            displayEventsData(data);
+        }).fail(function() {
+            console.log("Failed to load events.json");
+            $("#tech-tree-events").html('<div class="event-error">Failed to load events data</div>');
+        });
+    };
+    
+    function displayEventsData(eventsData) {
+        let html = '';
+        
+        // Create filter tabs
+        html += '<div class="events-filter-tabs">';
+        html += '<button class="events-filter-btn active" data-filter="all">All Events</button>';
+        html += '<button class="events-filter-btn" data-filter="anomalies">Anomalies</button>';
+        html += '<button class="events-filter-btn" data-filter="archaeological_sites">Archaeological Sites</button>';
+        html += '<button class="events-filter-btn" data-filter="dig_sites">Dig Sites</button>';
+        html += '<button class="events-filter-btn" data-filter="special_events">Special Events</button>';
+        html += '<button class="events-filter-btn" data-filter="crisis_events">Crisis Events</button>';
+        html += '</div>';
+        
+        html += '<div class="events-container">';
+        
+        // Display each category
+        Object.keys(eventsData).forEach(category => {
+            html += `<div class="events-category" data-category="${category}">`;
+            html += `<h2 class="events-category-title">${formatCategoryName(category)}</h2>`;
+            html += '<div class="events-grid">';
+            
+            eventsData[category].forEach(event => {
+                html += createEventCard(event, category);
+            });
+            
+            html += '</div></div>';
+        });
+        
+        html += '</div>';
+        
+        $("#tech-tree-events").html(html);
+        
+        // Add filter functionality
+        $('.events-filter-btn').click(function() {
+            $('.events-filter-btn').removeClass('active');
+            $(this).addClass('active');
+            
+            const filter = $(this).data('filter');
+            if (filter === 'all') {
+                $('.events-category').show();
+            } else {
+                $('.events-category').hide();
+                $(`.events-category[data-category="${filter}"]`).show();
+            }
+        });
+    }
+    
+    function formatCategoryName(category) {
+        return category.split('_').map(word => 
+            word.charAt(0).toUpperCase() + word.slice(1)
+        ).join(' ');
+    }
+    
+    function createEventCard(event, category) {
+        let html = '<div class="event-card">';
+        html += `<div class="event-icon">`;
+        html += `<img src="../assets/icons/${event.image || 'event_default'}.png" onerror="this.src='../assets/icons/event_default.png'" alt="${event.name}">`;
+        html += `</div>`;
+        html += `<div class="event-content">`;
+        html += `<h3 class="event-name">${event.name}</h3>`;
+        html += `<p class="event-category">${event.category} - ${event.type || 'Standard'}</p>`;
+        html += `<p class="event-description">${event.description}</p>`;
+        
+        // Add specific details based on event type
+        if (event.research_cost) {
+            html += `<p class="event-details">Research Cost: <span class="${event.research_type}-research">${event.research_cost}</span></p>`;
+        }
+        
+        if (event.chapters) {
+            html += `<p class="event-details">Excavation Chapters: ${event.chapters}</p>`;
+        }
+        
+        if (event.dig_sites) {
+            html += `<p class="event-details">Dig Sites Required: ${event.dig_sites}</p>`;
+        }
+        
+        if (event.chain_length) {
+            html += `<p class="event-details">Event Chain Length: ${event.chain_length}</p>`;
+        }
+        
+        html += `</div></div>`;
+        return html;
+    }
     
 });

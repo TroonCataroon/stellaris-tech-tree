@@ -813,3 +813,202 @@ li.float-Element.prerequisite-tab .close-btn:hover {
     position: absolute;
     z-index: 7;
 }
+
+/*********************************
+    Events Section Styles
+**********************************/
+
+.events-filter-tabs {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0 30px 0;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.events-filter-btn {
+    background: #333;
+    color: #fff;
+    border: 2px solid #2F6458;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: 'Arimo', Verdana;
+    font-size: 12px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.events-filter-btn:hover {
+    background: #2F6458;
+    border-color: #5ACA9C;
+}
+
+.events-filter-btn.active {
+    background: #4396E2;
+    border-color: #4396E2;
+    color: white;
+}
+
+.events-container {
+    padding: 0 20px;
+}
+
+.events-category {
+    margin-bottom: 40px;
+}
+
+.events-category-title {
+    color: #4396E2;
+    font-family: 'Arimo', Verdana;
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    text-align: center;
+    padding: 15px;
+    background: rgba(67, 150, 226, 0.1);
+    border-radius: 8px;
+    border: 2px solid #4396E2;
+}
+
+.events-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+    gap: 20px;
+    padding: 0 20px;
+}
+
+.event-card {
+    background: #333;
+    border: 3px solid #2F6458;
+    border-radius: 8px;
+    padding: 15px;
+    color: white;
+    font-family: 'Arimo', Verdana;
+    transition: all 0.3s ease;
+    display: flex;
+    gap: 15px;
+    min-height: 120px;
+}
+
+.event-card:hover {
+    border-color: #5ACA9C;
+    background: #3a3a3a;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.event-icon {
+    flex-shrink: 0;
+    width: 64px;
+    height: 64px;
+    background: black;
+    border-radius: 8px;
+    border: 2px solid #2F6458;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.event-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.event-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.event-name {
+    color: #5ACA9C;
+    font-size: 16px;
+    font-weight: bold;
+    margin: 0;
+    line-height: 1.2;
+}
+
+.event-category {
+    color: #E29C43;
+    font-size: 12px;
+    font-weight: bold;
+    margin: 0;
+    opacity: 0.9;
+}
+
+.event-description {
+    color: #ccc;
+    font-size: 12px;
+    line-height: 1.4;
+    margin: 0;
+    flex: 1;
+}
+
+.event-details {
+    color: #fff;
+    font-size: 11px;
+    margin: 0;
+    font-weight: bold;
+}
+
+.event-details .physics-research {
+    color: #4396E2;
+}
+
+.event-details .society-research {
+    color: #5ACA9C;
+}
+
+.event-details .engineering-research {
+    color: #E29C43;
+}
+
+.event-error {
+    text-align: center;
+    color: #ff6b6b;
+    font-family: 'Arimo', Verdana;
+    font-size: 18px;
+    font-weight: bold;
+    padding: 40px;
+    background: rgba(255, 107, 107, 0.1);
+    border: 2px solid #ff6b6b;
+    border-radius: 8px;
+    margin: 20px;
+}
+
+/* Responsive design for events */
+@media (max-width: 1200px) {
+    .events-grid {
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .events-grid {
+        grid-template-columns: 1fr;
+        padding: 0 10px;
+    }
+    
+    .events-filter-tabs {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .events-filter-btn {
+        width: 200px;
+        text-align: center;
+    }
+    
+    .event-card {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .event-icon {
+        align-self: center;
+    }
+}
