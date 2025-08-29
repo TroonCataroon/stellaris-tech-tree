@@ -1,5 +1,5 @@
-alert("🚨 HEADER.JS EXECUTING NOW!");
-console.log("🔥 HEADER.JS LOADING STARTED");
+alert("🚨 HEADER.JS EXECUTING NOW! v2.0");
+console.log("🔥 HEADER.JS LOADING STARTED v2.0");
 
 // Function taken from SO user "gpvos" , thank you!
 String.prototype.format = function () {

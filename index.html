@@ -125,7 +125,7 @@
             if (status === "success") {
                 console.log("🔥 Body.html loaded successfully, now loading scripts...");
                 
-                const headerScript = $('<script>').attr({ src: '../assets/js/header.js' });
+                const headerScript = $('<script>').attr({ src: '../assets/js/header.js?v=' + Date.now() });
                 headerScript.on('load', function() {
                     console.log("✅ header.js loaded successfully");
                 });
