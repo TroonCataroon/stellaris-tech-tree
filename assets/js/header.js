@@ -11,7 +11,9 @@ $(document).ready(function(){
 
     // Main function
 
-    $(".float-Contents").click(function (e) { 
+    console.log("Setting up click handlers for .float-Contents");
+    $(".float-Contents").click(function (e) {
+        console.log("float-Contents clicked! Parent classes:", $(this).parent().attr('class')); 
         $(".float-Element").removeClass("float-Highlight");
         $(".float-Element").addClass("float-Lowlight");
         $(this).parent().removeClass("float-Lowlight");
