@@ -55,6 +55,14 @@ $(document).ready(function(){
             $("#tech-tree-society").addClass("float-NoDisplay");
             $("#tech-tree-engineering").addClass("float-NoDisplay");
             $("#tech-tree-anomalies").removeClass("float-NoDisplay");
+            $("#tech-tree-events").addClass("float-NoDisplay");
+        }
+        if($(this).parent().hasClass("float-Events"))
+        {
+            $("#tech-tree-physics").addClass("float-NoDisplay");
+            $("#tech-tree-society").addClass("float-NoDisplay");
+            $("#tech-tree-engineering").addClass("float-NoDisplay");
+            $("#tech-tree-anomalies").addClass("float-NoDisplay");
             $("#tech-tree-events").removeClass("float-NoDisplay");
             loadEventsContent();
         }
