@@ -1,3 +1,5 @@
+console.log("🔥 HEADER.JS LOADING STARTED");
+
 // Function taken from SO user "gpvos" , thank you!
 String.prototype.format = function () {
     var args = arguments;
