@@ -72,7 +72,7 @@
         <img src="../assets/icons/yes.png"/><img src="../assets/icons/auth_corporate.png" height="21" width="21"/>
       {{/if}}
       {{if is_megacorp === false}}
-        <img src="../assets/icons/no.png"/><img src="../assets/icons/auth_corporate.png" height="21" width="21"/>
+        <img src="../assets/icons/no.png"/><img src="../assets/icons/auth_corporate" height="21" width="21"/>
       {{/if}}
       </p>
       <div class="node-status"></div>
@@ -118,7 +118,17 @@
             href: '../assets/css/tech-tree.css'
         });
         $('body').load('../assets/html/body.html', function() {
-            $('<script>').appendTo('head').attr({ src: '../assets/js/header.js?v=' + Date.now() });
+            console.log("🔥 Body.html loaded, now loading scripts...");
+            
+            const headerScript = $('<script>').attr({ src: '../assets/js/header.js' });
+            headerScript.on('load', function() {
+                console.log("✅ header.js loaded successfully");
+            });
+            headerScript.on('error', function() {
+                console.log("❌ header.js failed to load");
+            });
+            $('head').append(headerScript);
+            
             $('<script>').appendTo('head').attr({ src: '../assets/js/tech-tracking.js' });
             $('<script>').appendTo('head').attr({ src: '../assets/js/tech-tree.js' });
             $('<script>').appendTo('head').attr({ src: '../assets/js/prerequisite-tabs.js' });
