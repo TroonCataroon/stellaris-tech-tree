@@ -110,7 +110,6 @@
     <script>
       addEventListener('popstate', event => window.location.reload());
       const load_page = (param, title) => {
-        console.log("🚀 load_page called for:", param);
         history.pushState({pageID: param}, param, `${param}/`);
         document.title = title || param;
         $('<link>').appendTo('head').attr({
@@ -118,28 +117,11 @@
             rel: 'stylesheet',
             href: '../assets/css/tech-tree.css'
         });
-        console.log("📡 About to load body.html...");
-        $('body').load('../assets/html/body.html', function(response, status, xhr) {
-            console.log("📥 body.html load callback triggered!");
-            console.log("Status:", status, "Response length:", response ? response.length : "null");
-            if (status === "success") {
-                console.log("🔥 Body.html loaded successfully, now loading scripts...");
-                
-                const headerScript = $('<script>').attr({ src: '../assets/js/header.js?v=' + Date.now() });
-                headerScript.on('load', function() {
-                    console.log("✅ header.js loaded successfully");
-                });
-                headerScript.on('error', function() {
-                    console.log("❌ header.js failed to load");
-                });
-                $('head').append(headerScript);
-                
-                $('<script>').appendTo('head').attr({ src: '../assets/js/tech-tracking.js' });
-                $('<script>').appendTo('head').attr({ src: '../assets/js/tech-tree.js' });
-                $('<script>').appendTo('head').attr({ src: '../assets/js/prerequisite-tabs.js' });
-            } else {
-                console.log("❌ body.html failed to load, status:", status);
-            }
+        $('body').load('../assets/html/body.html', function() {
+            $('<script>').appendTo('head').attr({ src: '../assets/js/header.js?v=' + Date.now() });
+            $('<script>').appendTo('head').attr({ src: '../assets/js/tech-tracking.js' });
+            $('<script>').appendTo('head').attr({ src: '../assets/js/tech-tree.js' });
+            $('<script>').appendTo('head').attr({ src: '../assets/js/prerequisite-tabs.js' });
         });
       };
     </script>

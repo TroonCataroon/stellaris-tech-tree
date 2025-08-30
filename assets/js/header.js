@@ -1,5 +1,4 @@
-alert("🚨 HEADER.JS EXECUTING NOW! v2.0");
-console.log("🔥 HEADER.JS LOADING STARTED v2.0");
+console.log("🔥 HEADER.JS LOADING STARTED");
 
 // Function taken from SO user "gpvos" , thank you!
 String.prototype.format = function () {
@@ -15,11 +14,6 @@ $(document).ready(function(){
     
     // Wait a bit to ensure all elements are in the DOM
     setTimeout(function() {
-        console.log("Setting up click handlers for .float-Contents");
-        
-        // Check if Events tab exists
-        console.log("Events tab exists:", $(".float-Events").length > 0);
-        console.log("All float-Element classes:", $(".float-Element").map(function(){ return this.className; }).get());
 
         // Main function
         $(".float-Contents").off('click').on('click', function (e) { 
@@ -68,17 +62,15 @@ $(document).ready(function(){
             $("#tech-tree-anomalies").removeClass("float-NoDisplay");
             $("#tech-tree-events").addClass("float-NoDisplay");
         }
-        if($(this).parent().hasClass("float-Events"))
+                if($(this).parent().hasClass("float-Events"))
         {
-            console.log("Events tab clicked!");
             $("#tech-tree-physics").addClass("float-NoDisplay");
             $("#tech-tree-society").addClass("float-NoDisplay");
             $("#tech-tree-engineering").addClass("float-NoDisplay");
             $("#tech-tree-anomalies").addClass("float-NoDisplay");
             $("#tech-tree-events").removeClass("float-NoDisplay");
-            console.log("About to call loadEventsContent");
             loadEventsContent();
-                 }
+        }
      });
      
      }, 100); // Wait 100ms for DOM to be fully ready
@@ -154,21 +146,15 @@ $(document).ready(function(){
     
     // Events loading functionality
     window.loadEventsContent = function() {
-        console.log("loadEventsContent called");
-        console.log("Current URL:", window.location.href);
         $.getJSON('./events.json', function(data) {
-            console.log("events.json loaded successfully:", data);
             displayEventsData(data);
         }).fail(function(jqXHR, textStatus, errorThrown) {
-            console.log("Failed to load events.json");
-            console.log("Status:", textStatus, "Error:", errorThrown);
-            console.log("Response:", jqXHR.responseText);
+            console.log("Failed to load events.json:", textStatus, errorThrown);
             $("#tech-tree-events").html('<div class="event-error">Failed to load events data</div>');
         });
     };
     
     function displayEventsData(eventsData) {
-        console.log("displayEventsData called with:", eventsData);
         let html = '';
         
         // Create filter tabs
