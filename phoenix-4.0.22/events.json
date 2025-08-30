@@ -86,26 +86,50 @@
       "research_cost": 120,
       "research_type": "physics",
       "specimen": "subterranean_ocean",
-      "outcomes": [
+      "picture": "GFX_evt_ocean",
+      "image": "anomaly_subterranean_ocean",
+      "decisions": [
         {
-          "weight": 40,
-          "result": "Mineral Wealth (+2-6 Minerals)"
-        },
-        {
-          "weight": 30,
-          "result": "Exotic Life Forms (+150 Society Research)"
-        },
-        {
-          "weight": 20,
-          "result": "Hydrosphere Restoration (+3 Districts)"
-        },
-        {
-          "weight": 10,
-          "result": "Ancient Leviathan (Special Project)"
+          "option_name": "explore_depths",
+          "option_text": "Deploy deep-sea exploration drones to map the ocean floor.",
+          "outcomes": [
+            {
+              "type": "resource",
+              "result": "Mineral deposits discovered (+2-6 Minerals)",
+              "description": "Underwater mining opportunities",
+              "probability": "40%"
+            },
+            {
+              "type": "research",
+              "result": "Unique ecosystem (+150 Society Research)",
+              "description": "Previously unknown life forms provide research bonuses",
+              "probability": "30%"
+            },
+            {
+              "type": "planetary",
+              "result": "Hydrosphere restoration (+3 Districts)",
+              "description": "Ocean access enables new district construction",
+              "probability": "20%"
+            },
+            {
+              "type": "special_project",
+              "result": "Ancient Leviathan awakening",
+              "description": "Something massive stirs in the depths - begins special project chain",
+              "probability": "10%"
+            }
+          ],
+          "risk_level": "Medium",
+          "guaranteed": false,
+          "wiki_notes": "This anomaly can appear on frozen worlds and has multiple possible outcomes based on RNG weighting"
         }
       ],
-      "picture": "GFX_evt_ocean",
-      "image": "anomaly_subterranean_ocean"
+      "event_chain": null,
+      "prerequisites": ["Frozen world with subterranean ocean detected"],
+      "followup_events": ["Possible Leviathan awakening chain if triggered"],
+      "wiki_categories": ["Anomaly Events", "Planetary Events", "Ocean Events"],
+      "mtth_factors": "Modified by world type and survey level",
+      "dlc_requirements": "Base game",
+      "community_strategy": "Generally safe choice - 90% positive outcomes with potential for rare but powerful Leviathan encounter"
     },
     {
       "id": "anomaly.195",

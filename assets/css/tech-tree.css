@@ -1321,6 +1321,17 @@ li.float-Element.prerequisite-tab .close-btn:hover {
     font-size: 12px;
 }
 
+.wiki-notes {
+    background: rgba(67, 150, 226, 0.2);
+    border: 1px solid #4396E2;
+    color: #87ceeb;
+    padding: 8px 12px;
+    border-radius: 4px;
+    margin-bottom: 12px;
+    font-size: 12px;
+    font-style: italic;
+}
+
 .outcomes-list h5 {
     color: #4396E2;
     font-size: 14px;
@@ -1334,6 +1345,13 @@ li.float-Element.prerequisite-tab .close-btn:hover {
     border-radius: 4px;
 }
 
+.outcome-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+}
+
 .outcome-type {
     color: #E29C43;
     font-weight: bold;
@@ -1344,7 +1362,16 @@ li.float-Element.prerequisite-tab .close-btn:hover {
 .outcome-result {
     color: #5ACA9C;
     font-weight: bold;
-    margin-left: 8px;
+    flex: 1;
+}
+
+.outcome-probability {
+    background: rgba(90, 202, 156, 0.3);
+    color: #5ACA9C;
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-weight: bold;
 }
 
 .outcome-description {
@@ -1443,6 +1470,22 @@ li.float-Element.prerequisite-tab .close-btn:hover {
 .tree-item.chain {
     border-left-color: #E29C43;
     color: #ffd700;
+}
+
+.tree-item.technical {
+    border-left-color: #9370DB;
+    color: #dda0dd;
+}
+
+.tree-item.strategy {
+    border-left-color: #32CD32;
+    color: #90ee90;
+    font-weight: bold;
+}
+
+.wiki-technical .tree-item {
+    font-size: 11px;
+    font-family: monospace;
 }
 
 /* Responsive design for events */

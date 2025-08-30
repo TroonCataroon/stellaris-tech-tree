@@ -426,12 +426,21 @@ $(document).ready(function(){
             html += `<div class="decision-warning">⚠️ ${decision.warning}</div>`;
         }
         
+        if (decision.wiki_notes) {
+            html += `<div class="wiki-notes">📚 Wiki Notes: ${decision.wiki_notes}</div>`;
+        }
+        
         html += `<div class="outcomes-list">`;
-        html += `<h5>Outcomes:</h5>`;
+        html += `<h5>Possible Outcomes:</h5>`;
         decision.outcomes.forEach(outcome => {
             html += `<div class="outcome-item">`;
+            html += `<div class="outcome-header">`;
             html += `<span class="outcome-type">${outcome.type}:</span>`;
             html += `<span class="outcome-result">${outcome.result}</span>`;
+            if (outcome.probability) {
+                html += `<span class="outcome-probability">${outcome.probability}</span>`;
+            }
+            html += `</div>`;
             if (outcome.description) {
                 html += `<div class="outcome-description">${outcome.description}</div>`;
             }
@@ -484,6 +493,26 @@ $(document).ready(function(){
         let html = `<div class="relationship-tree">`;
         html += `<h3>Event Relationships</h3>`;
         
+        // Wiki-style technical information
+        if (event.mtth_factors || event.dlc_requirements || event.wiki_categories) {
+            html += `<div class="tree-section wiki-technical">`;
+            html += `<h4>📚 Wiki Information</h4>`;
+            
+            if (event.dlc_requirements) {
+                html += `<div class="tree-item technical">DLC: ${event.dlc_requirements}</div>`;
+            }
+            
+            if (event.mtth_factors) {
+                html += `<div class="tree-item technical">MTTH: ${event.mtth_factors}</div>`;
+            }
+            
+            if (event.wiki_categories) {
+                html += `<div class="tree-item technical">Categories: ${event.wiki_categories.join(', ')}</div>`;
+            }
+            
+            html += `</div>`;
+        }
+        
         if (event.prerequisites && event.prerequisites.length > 0) {
             html += `<div class="tree-section">`;
             html += `<h4>⬆️ Prerequisites</h4>`;
@@ -506,6 +535,14 @@ $(document).ready(function(){
             html += `<div class="tree-section">`;
             html += `<h4>🔗 Event Chain</h4>`;
             html += `<div class="tree-item chain">${event.event_chain}</div>`;
+            html += `</div>`;
+        }
+        
+        // Community strategy notes
+        if (event.community_strategy) {
+            html += `<div class="tree-section">`;
+            html += `<h4>🎯 Community Strategy</h4>`;
+            html += `<div class="tree-item strategy">${event.community_strategy}</div>`;
             html += `</div>`;
         }
         
