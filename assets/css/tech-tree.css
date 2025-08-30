@@ -873,98 +873,238 @@ li.float-Element.prerequisite-tab .close-btn:hover {
 
 .events-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+    gap: 16px;
     padding: 0 20px;
 }
 
-.event-card {
-    background: #333;
-    border: 3px solid #2F6458;
-    border-radius: 8px;
-    padding: 15px;
+/* Stellaris-style Event Cards */
+.stellaris-event-card {
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+    border: 2px solid #3d5a80;
+    border-radius: 6px;
     color: white;
     font-family: 'Arimo', Verdana;
-    transition: all 0.3s ease;
-    display: flex;
-    gap: 15px;
-    min-height: 120px;
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
 }
 
-.event-card:hover {
+.stellaris-event-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #4396E2, #5ACA9C, #E29C43);
+    opacity: 0.8;
+}
+
+.stellaris-event-card:hover {
     border-color: #5ACA9C;
-    background: #3a3a3a;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    background: linear-gradient(135deg, #252525 0%, #383838 100%);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(90, 202, 156, 0.2);
 }
 
-.event-icon {
+/* Event Type Specific Styling */
+.stellaris-event-card.anomalies {
+    border-color: #4396E2;
+}
+
+.stellaris-event-card.archaeological-sites {
+    border-color: #E29C43;
+}
+
+.stellaris-event-card.dig-sites {
+    border-color: #8B4513;
+}
+
+.stellaris-event-card.special-events {
+    border-color: #9370DB;
+}
+
+.stellaris-event-card.crisis-events {
+    border-color: #DC143C;
+}
+
+/* Event Header */
+.event-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background: rgba(0, 0, 0, 0.3);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.event-type-indicator {
+    font-size: 11px;
+    font-weight: bold;
+    color: #4396E2;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.event-rarity {
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.event-rarity.space {
+    background: rgba(67, 150, 226, 0.3);
+    color: #4396E2;
+}
+
+.event-rarity.planetary {
+    background: rgba(90, 202, 156, 0.3);
+    color: #5ACA9C;
+}
+
+.event-rarity.precursor {
+    background: rgba(226, 156, 67, 0.3);
+    color: #E29C43;
+}
+
+.event-rarity.mystery {
+    background: rgba(147, 112, 219, 0.3);
+    color: #9370DB;
+}
+
+.event-rarity.endgame_crisis {
+    background: rgba(220, 20, 60, 0.3);
+    color: #DC143C;
+}
+
+/* Main Content Area */
+.event-main-content {
+    display: flex;
+    gap: 12px;
+    padding: 12px;
+}
+
+.event-icon-container {
     flex-shrink: 0;
+}
+
+.event-icon-frame {
     width: 64px;
     height: 64px;
-    background: black;
+    background: linear-gradient(135deg, #0a0a0a, #1a1a1a);
+    border: 2px solid #3d5a80;
     border-radius: 8px;
-    border: 2px solid #2F6458;
     display: flex;
     align-items: center;
     justify-content: center;
+    position: relative;
     overflow: hidden;
 }
 
-.event-icon img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+.event-icon-frame::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, #4396E2, #5ACA9C);
+    border-radius: 8px;
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 0.3s ease;
 }
 
-.event-content {
+.stellaris-event-card:hover .event-icon-frame::before {
+    opacity: 1;
+}
+
+.event-icon-img {
+    width: 48px;
+    height: 48px;
+    object-fit: cover;
+    border-radius: 4px;
+    transition: transform 0.3s ease;
+}
+
+.stellaris-event-card:hover .event-icon-img {
+    transform: scale(1.1);
+}
+
+.event-text-content {
     flex: 1;
     display: flex;
     flex-direction: column;
     gap: 8px;
 }
 
-.event-name {
-    color: #5ACA9C;
+.stellaris-event-name {
+    color: #fff;
     font-size: 16px;
     font-weight: bold;
     margin: 0;
-    line-height: 1.2;
+    line-height: 1.3;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
 
-.event-category {
-    color: #E29C43;
-    font-size: 12px;
-    font-weight: bold;
-    margin: 0;
-    opacity: 0.9;
-}
-
-.event-description {
-    color: #ccc;
-    font-size: 12px;
+.event-description-text {
+    color: #b0b0b0;
+    font-size: 13px;
     line-height: 1.4;
     margin: 0;
     flex: 1;
 }
 
-.event-details {
-    color: #fff;
-    font-size: 11px;
-    margin: 0;
-    font-weight: bold;
+/* Stats Area */
+.event-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 12px;
+    background: rgba(0, 0, 0, 0.2);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.event-details .physics-research {
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    min-width: 60px;
+}
+
+.stat-icon {
+    font-size: 16px;
+    opacity: 0.8;
+}
+
+.stat-value {
+    font-size: 14px;
+    font-weight: bold;
+    color: #fff;
+}
+
+.stat-value.physics-research {
     color: #4396E2;
 }
 
-.event-details .society-research {
+.stat-value.society-research {
     color: #5ACA9C;
 }
 
-.event-details .engineering-research {
+.stat-value.engineering-research {
     color: #E29C43;
+}
+
+.stat-label {
+    font-size: 10px;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .event-error {

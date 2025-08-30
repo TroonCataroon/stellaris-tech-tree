@@ -14,6 +14,11 @@ $(document).ready(function(){
     
     // Wait a bit to ensure all elements are in the DOM
     setTimeout(function() {
+        console.log("Setting up click handlers for .float-Contents");
+        
+        // Check if Events tab exists
+        console.log("Events tab exists:", $(".float-Events").length > 0);
+        console.log("All float-Element classes:", $(".float-Element").map(function(){ return this.className; }).get());
 
         // Main function
         $(".float-Contents").off('click').on('click', function (e) { 
@@ -62,15 +67,17 @@ $(document).ready(function(){
             $("#tech-tree-anomalies").removeClass("float-NoDisplay");
             $("#tech-tree-events").addClass("float-NoDisplay");
         }
-                if($(this).parent().hasClass("float-Events"))
+        if($(this).parent().hasClass("float-Events"))
         {
+            console.log("Events tab clicked!");
             $("#tech-tree-physics").addClass("float-NoDisplay");
             $("#tech-tree-society").addClass("float-NoDisplay");
             $("#tech-tree-engineering").addClass("float-NoDisplay");
             $("#tech-tree-anomalies").addClass("float-NoDisplay");
             $("#tech-tree-events").removeClass("float-NoDisplay");
+            console.log("About to call loadEventsContent");
             loadEventsContent();
-        }
+                 }
      });
      
      }, 100); // Wait 100ms for DOM to be fully ready
@@ -146,15 +153,21 @@ $(document).ready(function(){
     
     // Events loading functionality
     window.loadEventsContent = function() {
+        console.log("loadEventsContent called");
+        console.log("Current URL:", window.location.href);
         $.getJSON('./events.json', function(data) {
+            console.log("events.json loaded successfully:", data);
             displayEventsData(data);
         }).fail(function(jqXHR, textStatus, errorThrown) {
-            console.log("Failed to load events.json:", textStatus, errorThrown);
+            console.log("Failed to load events.json");
+            console.log("Status:", textStatus, "Error:", errorThrown);
+            console.log("Response:", jqXHR.responseText);
             $("#tech-tree-events").html('<div class="event-error">Failed to load events data</div>');
         });
     };
     
     function displayEventsData(eventsData) {
+        console.log("displayEventsData called with:", eventsData);
         let html = '';
         
         // Create filter tabs
@@ -208,34 +221,77 @@ $(document).ready(function(){
     }
     
     function createEventCard(event, category) {
-        let html = '<div class="event-card">';
-        html += `<div class="event-icon">`;
-        html += `<img src="../assets/icons/${event.image || 'event_default'}.png" onerror="this.src='../assets/icons/event_default.png'" alt="${event.name}">`;
-        html += `</div>`;
-        html += `<div class="event-content">`;
-        html += `<h3 class="event-name">${event.name}</h3>`;
-        html += `<p class="event-category">${event.category} - ${event.type || 'Standard'}</p>`;
-        html += `<p class="event-description">${event.description}</p>`;
+        const eventTypeClass = category.replace('_', '-');
+        let html = `<div class="stellaris-event-card ${eventTypeClass}">`;
         
-        // Add specific details based on event type
+        // Header with event type indicator
+        html += `<div class="event-header">`;
+        html += `<div class="event-type-indicator">${event.category}</div>`;
+        html += `<div class="event-rarity ${event.type || 'standard'}">${event.type || 'Standard'}</div>`;
+        html += `</div>`;
+        
+        // Main content area
+        html += `<div class="event-main-content">`;
+        html += `<div class="event-icon-container">`;
+        html += `<div class="event-icon-frame">`;
+        html += `<img class="event-icon-img" src="../assets/icons/${event.image || 'event_default'}.png" loading="lazy" alt="${event.name}">`;
+        html += `</div>`;
+        html += `</div>`;
+        
+        html += `<div class="event-text-content">`;
+        html += `<h3 class="stellaris-event-name">${event.name}</h3>`;
+        html += `<div class="event-description-text">${event.description}</div>`;
+        html += `</div>`;
+        html += `</div>`;
+        
+        // Stats/details area
+        html += `<div class="event-stats">`;
+        
         if (event.research_cost) {
-            html += `<p class="event-details">Research Cost: <span class="${event.research_type}-research">${event.research_cost}</span></p>`;
+            const researchIcon = getResearchIcon(event.research_type);
+            html += `<div class="stat-item">`;
+            html += `<span class="stat-icon">${researchIcon}</span>`;
+            html += `<span class="stat-value ${event.research_type}-research">${event.research_cost}</span>`;
+            html += `<span class="stat-label">Research Cost</span>`;
+            html += `</div>`;
         }
         
         if (event.chapters) {
-            html += `<p class="event-details">Excavation Chapters: ${event.chapters}</p>`;
+            html += `<div class="stat-item">`;
+            html += `<span class="stat-icon">⛏️</span>`;
+            html += `<span class="stat-value">${event.chapters}</span>`;
+            html += `<span class="stat-label">Chapters</span>`;
+            html += `</div>`;
         }
         
         if (event.dig_sites) {
-            html += `<p class="event-details">Dig Sites Required: ${event.dig_sites}</p>`;
+            html += `<div class="stat-item">`;
+            html += `<span class="stat-icon">🏛️</span>`;
+            html += `<span class="stat-value">${event.dig_sites}</span>`;
+            html += `<span class="stat-label">Dig Sites</span>`;
+            html += `</div>`;
         }
         
         if (event.chain_length) {
-            html += `<p class="event-details">Event Chain Length: ${event.chain_length}</p>`;
+            html += `<div class="stat-item">`;
+            html += `<span class="stat-icon">⛓️</span>`;
+            html += `<span class="stat-value">${event.chain_length}</span>`;
+            html += `<span class="stat-label">Chain Length</span>`;
+            html += `</div>`;
         }
         
-        html += `</div></div>`;
+        html += `</div>`;
+        html += `</div>`;
         return html;
+    }
+    
+    function getResearchIcon(researchType) {
+        switch(researchType) {
+            case 'physics': return '🔬';
+            case 'society': return '🏛️';
+            case 'engineering': return '⚙️';
+            default: return '🔍';
+        }
     }
     
 });
