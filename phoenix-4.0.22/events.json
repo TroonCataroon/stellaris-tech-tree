@@ -9,14 +9,32 @@
       "research_cost": 60,
       "research_type": "society",
       "specimen": "coprolite",
-      "outcomes": [
+      "picture": "GFX_evt_mining_station",
+      "image": "anomaly_coprolite",
+      "decisions": [
         {
-          "weight": 100,
-          "result": "Society Research (+3) - Asteroid Coprolite Modifier"
+          "option_name": "REMARKABLE",
+          "option_text": "Remarkable! This will advance our understanding significantly.",
+          "outcomes": [
+            {
+              "type": "deposit",
+              "result": "Society Research Station (+3 Society Research)",
+              "description": "Add permanent society research deposit to asteroid"
+            },
+            {
+              "type": "modifier", 
+              "result": "Asteroid Coprolite Modifier",
+              "description": "Permanent modifier on system body",
+              "duration": "Permanent"
+            }
+          ],
+          "risk_level": "Safe",
+          "guaranteed": true
         }
       ],
-      "picture": "GFX_evt_mining_station",
-      "image": "anomaly_coprolite"
+      "event_chain": null,
+      "prerequisites": ["Coprolite specimen discovered"],
+      "followup_events": []
     },
     {
       "id": "anomaly.5",
@@ -27,22 +45,37 @@
       "research_cost": 80,
       "research_type": "engineering",
       "specimen": "pirate_treasure",
-      "outcomes": [
+      "picture": "GFX_evt_treasure_pile",
+      "image": "anomaly_pirate_treasure",
+      "decisions": [
         {
-          "weight": 60,
-          "result": "Energy Credits (+120-300)"
-        },
-        {
-          "weight": 30,
-          "result": "Rare Materials (+2 Exotic Gases)"
-        },
-        {
-          "weight": 10,
-          "result": "Ancient Technology (+80 Engineering Research)"
+          "option_name": "anomaly.5.a",
+          "option_text": "Salvage what we can from this ancient cache.",
+          "outcomes": [
+            {
+              "type": "resource",
+              "result": "Energy Credits (+120-300)",
+              "description": "Immediate energy credit reward"
+            },
+            {
+              "type": "artifacts",
+              "result": "Minor Artifacts (if Ancient Relics DLC)",
+              "description": "Small chance for archaeological materials",
+              "conditional": "has_ancrel = yes"
+            }
+          ],
+          "risk_level": "Safe",
+          "guaranteed": true
         }
       ],
-      "picture": "GFX_evt_asteroid_field",
-      "image": "anomaly_pirate_treasure"
+      "event_chain": "story.5",
+      "prerequisites": ["Pirate treasure detected"],
+      "followup_events": ["story.5 (30 days later)"],
+      "story_progression": {
+        "triggers_after": 30,
+        "next_event": "story.5",
+        "description": "Triggers follow-up story event about treasure hunt consequences"
+      }
     },
     {
       "id": "anomaly.40",
@@ -243,16 +276,53 @@
       "description": "A mysterious signal emanating from a black hole begins a journey into cosmic horror.",
       "trigger": "Black hole system survey",
       "chain_length": 12,
+      "picture": "GFX_evt_black_hole",
+      "image": "event_horizon_signal",
+      "decisions": [
+        {
+          "option_name": "ignore_signal",
+          "option_text": "This is clearly some kind of sensor malfunction.",
+          "outcomes": [
+            {
+              "type": "nothing",
+              "result": "Event ends safely",
+              "description": "Signal ignored, no consequences"
+            }
+          ],
+          "risk_level": "Safe",
+          "guaranteed": true
+        },
+        {
+          "option_name": "investigate_signal",
+          "option_text": "Our scientists must examine this phenomenon.",
+          "outcomes": [
+            {
+              "type": "event_chain",
+              "result": "Begin Horizon Signal Chain",
+              "description": "Starts 12-part event chain with cosmic horror elements"
+            },
+            {
+              "type": "risk",
+              "result": "Potential timeline alterations",
+              "description": "May fundamentally change your empire's nature"
+            }
+          ],
+          "risk_level": "Extreme",
+          "guaranteed": false,
+          "warning": "This path leads to cosmic horror and empire transformation"
+        }
+      ],
+      "event_chain": "horizon_signal_chain",
       "requirements": [
         "Scientist with Maniacal or Paranoid trait",
         "Black hole in empire territory"
       ],
-      "rewards": [
-        "Unique technologies",
-        "Special modifiers",
-        "Potentially catastrophic outcomes"
-      ],
-      "image": "event_horizon_signal"
+      "followup_events": ["12-part cosmic horror chain"],
+      "consequences": {
+        "positive": ["Unique technologies", "Time manipulation abilities"],
+        "negative": ["Reality distortion", "Potential species transformation"],
+        "catastrophic": ["Complete timeline rewrite", "Empire-wide mutations"]
+      }
     },
     {
       "id": "event_worm_in_waiting",
