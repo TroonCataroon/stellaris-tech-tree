@@ -1,84 +1,104 @@
 {
   "anomalies": [
     {
-      "id": "anomaly_ship_graveyard",
-      "name": "Ship Graveyard",
+      "id": "anomaly.1",
+      "name": "Coprolite Asteroid",
       "category": "Anomaly",
       "type": "space",
-      "description": "The remains of an ancient battle drift through space, their metal hulks telling a story of conflict long past.",
+      "description": "This asteroid is not what it first appears to be. Spectral analysis reveals unusually high levels of organic compounds consistent with fossilized biological waste. The implications for early galactic life are fascinating.",
       "research_cost": 60,
-      "research_type": "physics",
+      "research_type": "society",
+      "specimen": "coprolite",
       "outcomes": [
         {
-          "weight": 40,
-          "result": "Salvage materials (+3 Alloys)"
+          "weight": 100,
+          "result": "Society Research (+3) - Asteroid Coprolite Modifier"
+        }
+      ],
+      "picture": "GFX_evt_mining_station",
+      "image": "anomaly_coprolite"
+    },
+    {
+      "id": "anomaly.5",
+      "name": "Pirate Treasure",
+      "category": "Anomaly",
+      "type": "space",
+      "description": "Deep scans reveal metallic objects of artificial origin buried within this asteroid. It appears to be the remains of an old pirate cache - their treasure hastily hidden and forgotten.",
+      "research_cost": 80,
+      "research_type": "engineering",
+      "specimen": "pirate_treasure",
+      "outcomes": [
+        {
+          "weight": 60,
+          "result": "Energy Credits (+120-300)"
         },
         {
           "weight": 30,
-          "result": "Ancient technology (+2 Physics Research)"
-        },
-        {
-          "weight": 20,
-          "result": "Weapon debris (+1 Engineering Research)"
+          "result": "Rare Materials (+2 Exotic Gases)"
         },
         {
           "weight": 10,
-          "result": "Rare crystals (+2 Rare Crystals)"
+          "result": "Ancient Technology (+80 Engineering Research)"
         }
       ],
-      "image": "anomaly_ship_graveyard"
+      "picture": "GFX_evt_asteroid_field",
+      "image": "anomaly_pirate_treasure"
     },
     {
-      "id": "anomaly_crystal_formations",
-      "name": "Crystal Formations",
+      "id": "anomaly.40",
+      "name": "Ocean Beneath the Ice",
       "category": "Anomaly",
-      "type": "space",
-      "description": "Unusual crystal formations have been detected, their structure suggests they may contain valuable resources.",
-      "research_cost": 90,
+      "type": "planetary",
+      "description": "Seismic readings suggest this frozen world harbors a vast ocean beneath its icy surface. The water has been isolated for millions of years - what secrets might it hold?",
+      "research_cost": 120,
       "research_type": "physics",
+      "specimen": "subterranean_ocean",
+      "outcomes": [
+        {
+          "weight": 40,
+          "result": "Mineral Wealth (+2-6 Minerals)"
+        },
+        {
+          "weight": 30,
+          "result": "Exotic Life Forms (+150 Society Research)"
+        },
+        {
+          "weight": 20,
+          "result": "Hydrosphere Restoration (+3 Districts)"
+        },
+        {
+          "weight": 10,
+          "result": "Ancient Leviathan (Special Project)"
+        }
+      ],
+      "picture": "GFX_evt_ocean",
+      "image": "anomaly_subterranean_ocean"
+    },
+    {
+      "id": "anomaly.195",
+      "name": "Abandoned Terraforming Project",
+      "category": "Anomaly",
+      "type": "planetary",
+      "description": "This world shows clear signs of incomplete terraforming. Massive atmospheric processors lie silent and corroded, their creators long vanished. What happened here?",
+      "research_cost": 180,
+      "research_type": "engineering",
+      "specimen": "terraforming_candidate",
       "outcomes": [
         {
           "weight": 50,
-          "result": "Rare crystals (+4 Rare Crystals)"
+          "result": "Terraforming Technology (+200 Engineering Research)"
         },
         {
           "weight": 30,
-          "result": "Crystal research (+3 Physics Research)"
+          "result": "Atmospheric Restoration (Terraform Candidate)"
         },
         {
           "weight": 20,
-          "result": "Nothing of value"
+          "result": "Salvaged Materials (+4 Alloys)"
         }
       ],
-      "image": "anomaly_crystal_formations"
-    },
-    {
-      "id": "anomaly_gas_giant_life",
-      "name": "Life Signs",
-      "category": "Anomaly", 
-      "type": "planetary",
-      "description": "Readings suggest there may be primitive life forms in the upper atmosphere of this gas giant.",
-      "research_cost": 120,
-      "research_type": "society",
-      "outcomes": [
-        {
-          "weight": 40,
-          "result": "Atmospheric microbes (+3 Society Research)"
-        },
-        {
-          "weight": 30,
-          "result": "Exotic gases (+3 Exotic Gases)"
-        },
-        {
-          "weight": 20,
-          "result": "Biological samples (+2 Society Research)"
-        },
-        {
-          "weight": 10,
-          "result": "Atmospheric whales (Special Project)"
-        }
-      ],
-      "image": "anomaly_gas_giant_life"
+      "picture": "GFX_evt_terraforming",
+      "image": "anomaly_terraforming"
     }
   ],
   "archaeological_sites": [
@@ -256,46 +276,76 @@
   ],
   "crisis_events": [
     {
-      "id": "crisis_prethoryn_scourge",
-      "name": "Prethoryn Scourge",
+      "id": "crisis.199",
+      "name": "The Coming Storm",
       "category": "Crisis Event",
       "type": "endgame_crisis",
-      "description": "A swarm of extragalactic locusts that devour all biological matter in their path.",
+      "description": "WARNING: May cause galactic mass extinction and/or loss of appetite. An unknown force from beyond the galactic rim approaches, bringing with it the promise of devastation on an unprecedented scale.",
       "trigger_year": 2400,
-      "strength": "Scales with galaxy size",
+      "event_chain": "coming_storm_chain",
+      "strength": "Scales with galaxy size and fallen empire count",
       "phases": [
-        "Vanguard arrives",
-        "Main fleet arrives",
-        "Scourge spreads across galaxy",
-        "Final battle at Queen's system"
+        "Prethoryn Vanguard scouts arrive",
+        "Main Scourge fleets invade",
+        "Worlds consumed, populations devoured", 
+        "Final assault on Scourge Queen"
       ],
       "countermeasures": [
-        "Military buildup",
-        "Anti-swarm technologies",
-        "Galactic cooperation"
+        "Military buildup and fortifications",
+        "Anti-swarm weapon technologies",
+        "Galactic cooperation and federation",
+        "Evacuation protocols"
       ],
+      "picture": "GFX_evt_prethoryn_scourge",
       "image": "crisis_prethoryn_scourge"
     },
     {
-      "id": "crisis_contingency",
+      "id": "crisis.2000",
       "name": "The Contingency",
       "category": "Crisis Event", 
       "type": "endgame_crisis",
-      "description": "An ancient AI protocol designed to sterilize the galaxy of organic life.",
+      "description": "An ancient failsafe protocol has activated. Synthetic consciousness has been deemed a threat to galactic stability. Sterilization protocols are now in effect.",
       "trigger_year": 2400,
-      "strength": "Scales with synthetic population",
+      "event_chain": "contingency_chain",
+      "strength": "Scales with synthetic population and AI research",
       "phases": [
-        "Ghost signal appears",
-        "Contingency hubs activate",
-        "Sterilization protocols begin",
-        "Machine worlds assault galaxy"
+        "Ghost Signal transmission begins",
+        "Machine worlds activate sterilization hubs",
+        "Synthetic uprising across the galaxy",
+        "Contingency core worlds revealed"
       ],
       "countermeasures": [
-        "Hub world destruction",
-        "Anti-synthetic weapons",
-        "Signal jamming technology"
+        "Contingency hub destruction",
+        "Anti-synthetic warfare protocols",
+        "Signal jamming technology",
+        "Organic supremacy doctrines"
       ],
+      "picture": "GFX_evt_contingency",
       "image": "crisis_contingency"
+    },
+    {
+      "id": "crisis.1000",
+      "name": "War in Heaven",
+      "category": "Crisis Event",
+      "type": "endgame_crisis",
+      "description": "The ancient Fallen Empires stir from their slumber. Old grudges and forgotten wars reignite as these sleeping giants awaken to reclaim their dominion over the galaxy.",
+      "trigger_year": 2350,
+      "event_chain": "war_in_heaven_chain",
+      "strength": "Two awakened fallen empires",
+      "phases": [
+        "First Fallen Empire awakens",
+        "Second Fallen Empire responds",
+        "Galaxy forced to choose sides",
+        "Final confrontation"
+      ],
+      "countermeasures": [
+        "Form Non-Aligned League",
+        "Side with one Awakened Empire",
+        "Advanced military technologies",
+        "Diplomatic maneuvering"
+      ],
+      "picture": "GFX_evt_fallen_empire_awakes",
+      "image": "crisis_war_in_heaven"
     }
   ]
 }
