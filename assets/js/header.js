@@ -502,10 +502,14 @@ $(document).ready(function(){
         riskHtml += `</div>`;
         $('#risk-assessment').html(riskHtml);
         
-        // Decision Tree (simplified)
+        // Decision Tree (enhanced with interactive elements)
         let treeHtml = `
             <div class="analysis-section">
                 <h4>🌳 Decision Flow</h4>
+                <div class="tree-controls">
+                    <button class="tree-btn" onclick="generateFlowchart('${event.id}')">📊 Generate Flowchart</button>
+                    <button class="tree-btn" onclick="showEventRelationships('${event.id}')">🔗 Show Connections</button>
+                </div>
                 <div class="decision-tree">
                     <div class="tree-node root">
                         <span class="node-title">${event.name}</span>
@@ -513,20 +517,54 @@ $(document).ready(function(){
         
         if (event.decisions) {
             event.decisions.forEach((decision, index) => {
+                const riskClass = decision.risk_level?.toLowerCase() || 'unknown';
                 treeHtml += `
-                    <div class="tree-branch">
-                        <div class="branch-decision">${decision.option_text || decision.option_name}</div>
+                    <div class="tree-branch ${riskClass}-branch">
+                        <div class="branch-decision" data-decision-index="${index}">
+                            <span class="decision-icon">${getRiskIcon(decision.risk_level)}</span>
+                            <span class="decision-text">${decision.option_text || decision.option_name}</span>
+                        </div>
                 `;
                 if (decision.outcomes) {
-                    decision.outcomes.forEach(outcome => {
-                        treeHtml += `<div class="branch-outcome">${outcome.result}</div>`;
+                    decision.outcomes.forEach((outcome, oIndex) => {
+                        treeHtml += `<div class="branch-outcome" data-outcome-index="${oIndex}">
+                            <span class="outcome-icon">${getOutcomeIcon(outcome.type)}</span>
+                            <span class="outcome-text">${outcome.result}</span>
+                            <span class="outcome-prob">${outcome.probability || '100%'}</span>
+                        </div>`;
                     });
                 }
                 treeHtml += `</div>`;
             });
         }
         
-        treeHtml += `</div></div></div>`;
+        // Add event chain information
+        if (event.event_chain || event.followup_events) {
+            treeHtml += `<div class="tree-connections">`;
+            treeHtml += `<div class="connection-label">📎 Connected Events:</div>`;
+            if (event.event_chain) {
+                treeHtml += `<div class="chain-item">⛓️ ${event.event_chain}</div>`;
+            }
+            if (event.followup_events) {
+                event.followup_events.forEach(followup => {
+                    treeHtml += `<div class="followup-item">➡️ ${followup}</div>`;
+                });
+            }
+            treeHtml += `</div>`;
+        }
+        
+        treeHtml += `</div>`;
+        
+        // Add interactive flowchart container
+        treeHtml += `<div id="flowchart-container-${event.id}" class="flowchart-container" style="display:none;">
+            <div class="flowchart-header">
+                <h5>📊 Interactive Decision Flowchart</h5>
+                <button onclick="closeFlowchart('${event.id}')">✖</button>
+            </div>
+            <div class="flowchart-content" id="flowchart-${event.id}"></div>
+        </div>`;
+        
+        treeHtml += `</div></div>`;
         $('#decision-tree').html(treeHtml);
         
         // Recommendations
@@ -571,5 +609,158 @@ $(document).ready(function(){
     
     // Store events data for later use
     window.eventsCache = {};
+    
+    // Helper function for risk icons
+    function getRiskIcon(riskLevel) {
+        const icons = {
+            'Safe': '🟢',
+            'Medium': '🟡', 
+            'Extreme': '🔴',
+            'Unknown': '⚪'
+        };
+        return icons[riskLevel] || '⚪';
+    }
+    
+    // Interactive flowchart generation
+    window.generateFlowchart = function(eventId) {
+        console.log("Generating flowchart for:", eventId);
+        
+        const container = $(`#flowchart-container-${eventId}`);
+        const content = $(`#flowchart-${eventId}`);
+        
+        // Find the event data
+        let eventData = null;
+        Object.keys(window.eventsCache || {}).forEach(category => {
+            const event = window.eventsCache[category].find(e => e.id === eventId);
+            if (event) eventData = event;
+        });
+        
+        if (!eventData) return;
+        
+        // Generate SVG-style flowchart
+        let flowchartHtml = `<div class="flowchart-svg">`;
+        flowchartHtml += `<div class="flow-node start-node">${eventData.name}</div>`;
+        
+        if (eventData.decisions) {
+            eventData.decisions.forEach((decision, index) => {
+                const riskClass = decision.risk_level?.toLowerCase() || 'unknown';
+                flowchartHtml += `
+                    <div class="flow-connection"></div>
+                    <div class="flow-node decision-node ${riskClass}" data-decision="${index}">
+                        ${decision.option_text || decision.option_name}
+                        <div class="risk-badge ${riskClass}">${decision.risk_level || 'Unknown'}</div>
+                    </div>
+                `;
+                
+                if (decision.outcomes) {
+                    decision.outcomes.forEach((outcome, oIndex) => {
+                        flowchartHtml += `
+                            <div class="flow-connection outcome-connection"></div>
+                            <div class="flow-node outcome-node" data-outcome="${oIndex}">
+                                ${outcome.result}
+                                <div class="probability-badge">${outcome.probability || '100%'}</div>
+                            </div>
+                        `;
+                    });
+                }
+            });
+        }
+        
+        flowchartHtml += `</div>`;
+        
+        content.html(flowchartHtml);
+        container.show();
+        
+        // Add click handlers for interactive elements
+        container.find('.decision-node').click(function() {
+            const decisionIndex = $(this).data('decision');
+            highlightDecisionPath(eventId, decisionIndex);
+        });
+    };
+    
+    window.closeFlowchart = function(eventId) {
+        $(`#flowchart-container-${eventId}`).hide();
+    };
+    
+    window.showEventRelationships = function(eventId) {
+        console.log("Showing event relationships for:", eventId);
+        
+        // Find related events based on chains, prerequisites, and outcomes
+        let eventData = null;
+        let categoryData = null;
+        
+        Object.keys(window.eventsCache || {}).forEach(category => {
+            const event = window.eventsCache[category].find(e => e.id === eventId);
+            if (event) {
+                eventData = event;
+                categoryData = category;
+            }
+        });
+        
+        if (!eventData) return;
+        
+        // Create relationship map in side panel
+        let relationshipHtml = `
+            <div class="relationship-map">
+                <h5>🔗 Event Relationships</h5>
+                <div class="relationship-grid">
+        `;
+        
+        // Show prerequisites
+        if (eventData.prerequisites) {
+            relationshipHtml += `<div class="relation-group">
+                <div class="relation-label">📋 Prerequisites:</div>`;
+            eventData.prerequisites.forEach(prereq => {
+                relationshipHtml += `<div class="relation-item prerequisite">${prereq}</div>`;
+            });
+            relationshipHtml += `</div>`;
+        }
+        
+        // Show event chains
+        if (eventData.event_chain) {
+            relationshipHtml += `<div class="relation-group">
+                <div class="relation-label">⛓️ Part of Chain:</div>
+                <div class="relation-item chain">${eventData.event_chain}</div>
+            </div>`;
+        }
+        
+        // Show follow-up events
+        if (eventData.followup_events) {
+            relationshipHtml += `<div class="relation-group">
+                <div class="relation-label">➡️ Leads to:</div>`;
+            eventData.followup_events.forEach(followup => {
+                relationshipHtml += `<div class="relation-item followup">${followup}</div>`;
+            });
+            relationshipHtml += `</div>`;
+        }
+        
+        // Show story progression
+        if (eventData.story_progression) {
+            relationshipHtml += `<div class="relation-group">
+                <div class="relation-label">📖 Story Flow:</div>
+                <div class="relation-item story">
+                    Triggers: ${eventData.story_progression.next_event} 
+                    (after ${eventData.story_progression.triggers_after} days)
+                </div>
+                <div class="story-description">${eventData.story_progression.description}</div>
+            </div>`;
+        }
+        
+        relationshipHtml += `</div></div>`;
+        
+        // Insert into decision tree section
+        $('#decision-tree').append(relationshipHtml);
+    };
+    
+    function highlightDecisionPath(eventId, decisionIndex) {
+        // Highlight the selected decision path in the flowchart
+        const container = $(`#flowchart-container-${eventId}`);
+        container.find('.flow-node').removeClass('highlighted');
+        container.find(`[data-decision="${decisionIndex}"]`).addClass('highlighted');
+        
+        // Also highlight in the main decision options
+        $('.decision-option').removeClass('path-highlighted');
+        $(`.decision-option:eq(${decisionIndex})`).addClass('path-highlighted');
+    }
     
 });
