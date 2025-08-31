@@ -1107,6 +1107,162 @@ li.float-Element.prerequisite-tab .close-btn:hover {
     letter-spacing: 0.5px;
 }
 
+/* Interactive Decision System */
+.expand-button {
+    background: rgba(67, 150, 226, 0.3);
+    color: #4396E2;
+    border: 1px solid #4396E2;
+    border-radius: 4px;
+    padding: 4px 8px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.3s ease;
+}
+
+.expand-button:hover {
+    background: #4396E2;
+    color: white;
+}
+
+.stellaris-event-card.expanded {
+    border-color: #5ACA9C;
+    box-shadow: 0 0 20px rgba(90, 202, 156, 0.3);
+}
+
+/* Event Decisions Section */
+.event-decisions {
+    background: rgba(0, 0, 0, 0.4);
+    border-top: 2px solid rgba(90, 202, 156, 0.5);
+    padding: 15px;
+    margin-top: 10px;
+}
+
+.decisions-header h4 {
+    color: #5ACA9C;
+    margin: 0 0 15px 0;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.decision-option {
+    background: linear-gradient(135deg, #2a2a2a, #3a3a3a);
+    border: 2px solid #555;
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.decision-option:hover {
+    border-color: #4396E2;
+    background: linear-gradient(135deg, #353535, #454545);
+}
+
+.decision-option.selected {
+    border-color: #5ACA9C;
+    background: linear-gradient(135deg, #2d4a3e, #3d5a4e);
+    box-shadow: 0 0 15px rgba(90, 202, 156, 0.2);
+}
+
+.decision-option.analyzing {
+    animation: analyzing-pulse 2s infinite;
+}
+
+@keyframes analyzing-pulse {
+    0% { box-shadow: 0 0 15px rgba(90, 202, 156, 0.2); }
+    50% { box-shadow: 0 0 25px rgba(90, 202, 156, 0.5); }
+    100% { box-shadow: 0 0 15px rgba(90, 202, 156, 0.2); }
+}
+
+.decision-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.decision-title {
+    color: #fff;
+    font-weight: bold;
+    font-size: 13px;
+}
+
+.risk-indicator {
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 10px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.risk-indicator.safe {
+    background: rgba(76, 175, 80, 0.3);
+    color: #4CAF50;
+}
+
+.risk-indicator.medium {
+    background: rgba(255, 193, 7, 0.3);
+    color: #FFC107;
+}
+
+.risk-indicator.extreme {
+    background: rgba(244, 67, 54, 0.3);
+    color: #F44336;
+}
+
+.risk-indicator.unknown {
+    background: rgba(158, 158, 158, 0.3);
+    color: #9E9E9E;
+}
+
+/* Decision Outcomes */
+.decision-outcomes {
+    margin-top: 10px;
+}
+
+.outcome-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 0;
+    font-size: 12px;
+}
+
+.outcome-type {
+    font-size: 16px;
+    min-width: 20px;
+}
+
+.outcome-text {
+    flex: 1;
+    color: #ccc;
+}
+
+.outcome-probability {
+    color: #4396E2;
+    font-weight: bold;
+    min-width: 40px;
+    text-align: right;
+}
+
+.simple-outcomes h5 {
+    color: #E29C43;
+    margin: 0 0 10px 0;
+    font-size: 13px;
+}
+
+.outcome-weight {
+    color: #4396E2;
+    font-weight: bold;
+    min-width: 80px;
+}
+
+.outcome-result {
+    color: #ccc;
+    margin-left: 10px;
+}
+
 .event-error {
     text-align: center;
     color: #ff6b6b;
@@ -1120,372 +1276,244 @@ li.float-Element.prerequisite-tab .close-btn:hover {
     margin: 20px;
 }
 
-/* Decision Preview in Cards */
-.decision-preview {
-    padding: 8px 12px;
-    background: rgba(0, 0, 0, 0.15);
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.decision-count {
-    font-size: 11px;
-    color: #4396E2;
-    font-weight: bold;
-    margin-bottom: 4px;
-}
-
-.risk-indicators {
-    display: flex;
-    gap: 4px;
-    flex-wrap: wrap;
-}
-
-.risk-badge {
-    font-size: 10px;
-    padding: 2px 6px;
-    border-radius: 3px;
-    color: white;
-    font-weight: bold;
-    text-transform: uppercase;
-}
-
-/* Event Actions */
-.event-actions {
-    padding: 12px;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.analyze-event-btn {
-    width: 100%;
-    background: linear-gradient(135deg, #4396E2, #5ACA9C);
-    border: none;
-    color: white;
-    padding: 10px 16px;
-    border-radius: 6px;
-    font-family: 'Arimo', Verdana;
-    font-size: 12px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.analyze-event-btn:hover {
-    background: linear-gradient(135deg, #5ACA9C, #E29C43);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(67, 150, 226, 0.3);
-}
-
-/*********************************
-    Event Analyzer Modal
-**********************************/
-
-.event-analyzer-overlay {
+/* Consequence Analysis Side Panel */
+.consequence-side-panel {
     position: fixed;
     top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.8);
+    right: -400px;
+    width: 400px;
+    height: 100vh;
+    background: linear-gradient(135deg, #1a1a1a, #2a2a2a);
+    border-left: 3px solid #4396E2;
     z-index: 10000;
-    display: none;
+    transition: right 0.3s ease;
     overflow-y: auto;
+    box-shadow: -5px 0 20px rgba(0, 0, 0, 0.5);
 }
 
-.event-analyzer-modal {
-    max-width: 1200px;
-    width: 95%;
-    margin: 20px auto;
-    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
-    border: 2px solid #4396E2;
-    border-radius: 12px;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
-    color: white;
-    font-family: 'Arimo', Verdana;
+.consequence-side-panel.open {
+    right: 0;
 }
 
-.analyzer-header {
+.panel-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 20px 24px;
+    padding: 15px 20px;
     background: rgba(67, 150, 226, 0.1);
     border-bottom: 2px solid #4396E2;
-    border-radius: 10px 10px 0 0;
+    position: sticky;
+    top: 0;
+    z-index: 10;
 }
 
-.analyzer-title {
+.panel-header h3 {
     color: #4396E2;
-    font-size: 24px;
-    font-weight: bold;
     margin: 0;
+    font-size: 16px;
 }
 
-.close-analyzer {
-    background: none;
+.close-panel {
+    background: transparent;
     border: none;
     color: #fff;
-    font-size: 24px;
+    font-size: 16px;
     cursor: pointer;
-    padding: 5px 10px;
-    border-radius: 4px;
+    padding: 5px;
+    border-radius: 50%;
     transition: background 0.3s ease;
 }
 
-.close-analyzer:hover {
+.close-panel:hover {
     background: rgba(255, 255, 255, 0.1);
 }
 
-.analyzer-content {
-    display: grid;
-    grid-template-columns: 1fr 350px;
-    gap: 24px;
-    padding: 24px;
-    min-height: 600px;
+.panel-content {
+    padding: 20px;
 }
 
-.analyzer-left {
-    overflow-y: auto;
+.analysis-section {
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.analyzer-right {
-    border-left: 1px solid rgba(255, 255, 255, 0.1);
-    padding-left: 24px;
-    overflow-y: auto;
-}
-
-/* Event Description */
-.event-full-description h3 {
+.analysis-section h4 {
     color: #5ACA9C;
-    font-size: 18px;
-    margin-bottom: 12px;
-}
-
-.event-full-description p {
-    color: #ccc;
-    line-height: 1.6;
     font-size: 14px;
-    margin-bottom: 24px;
+    margin: 0 0 15px 0;
+    font-weight: bold;
 }
 
-/* Decision Analysis */
-.decision-analysis h3 {
-    color: #E29C43;
-    font-size: 18px;
-    margin-bottom: 16px;
+.event-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 15px;
 }
 
-.decision-option {
-    background: rgba(0, 0, 0, 0.3);
-    border: 2px solid #3d5a80;
-    border-radius: 8px;
-    padding: 16px;
-    margin-bottom: 16px;
-    transition: all 0.3s ease;
+.event-id, .event-category, .event-type {
+    background: rgba(67, 150, 226, 0.2);
+    color: #4396E2;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 10px;
+    font-weight: bold;
 }
 
-.decision-option:hover {
-    border-color: #5ACA9C;
-    background: rgba(0, 0, 0, 0.4);
+.event-desc {
+    color: #ccc;
+    font-size: 12px;
+    line-height: 1.4;
+    margin: 0;
 }
 
-.decision-header {
+/* Risk Assessment */
+.risk-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 12px;
+    padding: 8px 12px;
+    margin-bottom: 8px;
+    border-radius: 6px;
 }
 
-.decision-header h4 {
+.risk-item.safe {
+    background: rgba(76, 175, 80, 0.1);
+    border-left: 3px solid #4CAF50;
+}
+
+.risk-item.medium {
+    background: rgba(255, 193, 7, 0.1);
+    border-left: 3px solid #FFC107;
+}
+
+.risk-item.extreme {
+    background: rgba(244, 67, 54, 0.1);
+    border-left: 3px solid #F44336;
+}
+
+.risk-item.unknown {
+    background: rgba(158, 158, 158, 0.1);
+    border-left: 3px solid #9E9E9E;
+}
+
+.risk-label {
     color: #fff;
-    font-size: 16px;
-    margin: 0;
+    font-size: 12px;
     flex: 1;
 }
 
 .risk-level {
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 11px;
+    font-size: 10px;
     font-weight: bold;
-    color: white;
+    padding: 2px 6px;
+    border-radius: 8px;
     text-transform: uppercase;
 }
 
-.decision-warning {
-    background: rgba(220, 53, 69, 0.2);
-    border: 1px solid #dc3545;
-    color: #ff6b6b;
-    padding: 8px 12px;
-    border-radius: 4px;
-    margin-bottom: 12px;
-    font-size: 12px;
-}
-
-.wiki-notes {
-    background: rgba(67, 150, 226, 0.2);
-    border: 1px solid #4396E2;
-    color: #87ceeb;
-    padding: 8px 12px;
-    border-radius: 4px;
-    margin-bottom: 12px;
-    font-size: 12px;
-    font-style: italic;
-}
-
-.outcomes-list h5 {
-    color: #4396E2;
-    font-size: 14px;
-    margin: 0 0 8px 0;
-}
-
-.outcome-item {
-    margin-bottom: 8px;
-    padding: 8px;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 4px;
-}
-
-.outcome-header {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 4px;
-}
-
-.outcome-type {
-    color: #E29C43;
-    font-weight: bold;
-    font-size: 12px;
-    text-transform: capitalize;
-}
-
-.outcome-result {
-    color: #5ACA9C;
-    font-weight: bold;
-    flex: 1;
-}
-
-.outcome-probability {
-    background: rgba(90, 202, 156, 0.3);
-    color: #5ACA9C;
-    font-size: 10px;
-    padding: 2px 6px;
-    border-radius: 3px;
-    font-weight: bold;
-}
-
-.outcome-description {
-    color: #bbb;
-    font-size: 11px;
-    margin-top: 4px;
-    font-style: italic;
-}
-
-/* Consequences Summary */
-.consequences-summary h3 {
-    color: #9370DB;
-    font-size: 18px;
-    margin-bottom: 16px;
-}
-
-.consequence-category {
+/* Decision Tree */
+.decision-tree {
     background: rgba(0, 0, 0, 0.3);
+    border-radius: 8px;
+    padding: 15px;
+}
+
+.tree-node.root {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.node-title {
+    color: #4396E2;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.tree-branch {
+    margin: 10px 0;
+    padding-left: 20px;
+    border-left: 2px solid #5ACA9C;
+}
+
+.branch-decision {
+    color: #5ACA9C;
+    font-weight: bold;
+    font-size: 12px;
+    margin-bottom: 5px;
+}
+
+.branch-outcome {
+    color: #ccc;
+    font-size: 11px;
+    margin-left: 15px;
+    padding: 2px 0;
+}
+
+/* Outcome Probabilities */
+.outcome-probabilities {
+    background: rgba(0, 0, 0, 0.2);
     border-radius: 6px;
     padding: 12px;
-    margin-bottom: 12px;
 }
 
-.consequence-category.positive {
-    border-left: 4px solid #28a745;
+.prob-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 0;
+    font-size: 12px;
 }
 
-.consequence-category.negative {
-    border-left: 4px solid #ffc107;
+.prob-weight {
+    color: #4396E2;
+    font-weight: bold;
+    min-width: 40px;
 }
 
-.consequence-category.catastrophic {
-    border-left: 4px solid #dc3545;
+.prob-result {
+    color: #ccc;
+    flex: 1;
+    margin-left: 10px;
 }
 
-.consequence-category h4 {
-    margin: 0 0 8px 0;
-    font-size: 14px;
+/* Recommendations */
+.recommendations-list {
+    space-y: 10px;
 }
 
-.consequence-category.positive h4 {
-    color: #28a745;
+.rec-item {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 6px;
+    padding: 10px;
+    margin-bottom: 10px;
 }
 
-.consequence-category.negative h4 {
-    color: #ffc107;
+.rec-item.community {
+    border-left: 3px solid #9370DB;
 }
 
-.consequence-category.catastrophic h4 {
-    color: #dc3545;
+.rec-item.general {
+    border-left: 3px solid #4396E2;
 }
 
-.consequence-item {
+.rec-item.warning {
+    border-left: 3px solid #F44336;
+}
+
+.rec-label {
+    color: #5ACA9C;
+    font-weight: bold;
+    font-size: 11px;
+    display: block;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+}
+
+.rec-text {
     color: #ccc;
     font-size: 12px;
-    margin-bottom: 4px;
-    padding-left: 8px;
-}
-
-/* Relationship Tree */
-.relationship-tree h3 {
-    color: #4396E2;
-    font-size: 18px;
-    margin-bottom: 16px;
-}
-
-.tree-section {
-    margin-bottom: 16px;
-}
-
-.tree-section h4 {
-    color: #5ACA9C;
-    font-size: 14px;
-    margin: 0 0 8px 0;
-}
-
-.tree-item {
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 4px;
-    padding: 8px 12px;
-    margin-bottom: 6px;
-    font-size: 12px;
-    border-left: 3px solid;
-}
-
-.tree-item.prerequisite {
-    border-left-color: #17a2b8;
-    color: #87ceeb;
-}
-
-.tree-item.followup {
-    border-left-color: #28a745;
-    color: #90ee90;
-}
-
-.tree-item.chain {
-    border-left-color: #E29C43;
-    color: #ffd700;
-}
-
-.tree-item.technical {
-    border-left-color: #9370DB;
-    color: #dda0dd;
-}
-
-.tree-item.strategy {
-    border-left-color: #32CD32;
-    color: #90ee90;
-    font-weight: bold;
-}
-
-.wiki-technical .tree-item {
-    font-size: 11px;
-    font-family: monospace;
+    line-height: 1.4;
 }
 
 /* Responsive design for events */
@@ -1494,16 +1522,9 @@ li.float-Element.prerequisite-tab .close-btn:hover {
         grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
     }
     
-    .analyzer-content {
-        grid-template-columns: 1fr;
-        gap: 16px;
-    }
-    
-    .analyzer-right {
-        border-left: none;
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
-        padding-left: 0;
-        padding-top: 16px;
+    .consequence-side-panel {
+        width: 350px;
+        right: -350px;
     }
 }
 
@@ -1532,20 +1553,17 @@ li.float-Element.prerequisite-tab .close-btn:hover {
         align-self: center;
     }
     
-    .event-analyzer-modal {
-        width: 95%;
-        margin: 10px auto;
+    .consequence-side-panel {
+        width: 100%;
+        right: -100%;
     }
     
-    .analyzer-content {
-        padding: 16px;
+    .decision-option {
+        padding: 10px;
     }
     
-    .analyzer-header {
-        padding: 16px;
-    }
-    
-    .analyzer-title {
-        font-size: 20px;
+    .outcome-item {
+        flex-direction: column;
+        align-items: flex-start;
     }
 }

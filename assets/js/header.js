@@ -168,6 +168,10 @@ $(document).ready(function(){
     
     function displayEventsData(eventsData) {
         console.log("displayEventsData called with:", eventsData);
+        
+        // Cache the events data for consequence analysis
+        window.eventsCache = eventsData;
+        
         let html = '';
         
         // Create filter tabs
@@ -212,6 +216,44 @@ $(document).ready(function(){
                 $(`.events-category[data-category="${filter}"]`).show();
             }
         });
+        
+        // Add expand/collapse functionality for event cards
+        $('.expand-button').click(function(e) {
+            e.stopPropagation();
+            const card = $(this).closest('.stellaris-event-card');
+            const decisions = card.find('.event-decisions');
+            
+            if (decisions.is(':visible')) {
+                decisions.slideUp(300);
+                $(this).text('📋');
+                card.removeClass('expanded');
+            } else {
+                // Close other expanded cards
+                $('.stellaris-event-card.expanded .event-decisions').slideUp(300);
+                $('.stellaris-event-card.expanded .expand-button').text('📋');
+                $('.stellaris-event-card').removeClass('expanded');
+                
+                // Expand this card
+                decisions.slideDown(300);
+                $(this).text('📖');
+                card.addClass('expanded');
+                
+                // Show consequence analysis in side panel
+                showConsequenceAnalysis(card.data('event-id'));
+            }
+        });
+        
+        // Click event for decision options
+        $(document).on('click', '.decision-option', function() {
+            $('.decision-option').removeClass('selected');
+            $(this).addClass('selected');
+            
+            const card = $(this).closest('.stellaris-event-card');
+            const eventId = card.data('event-id');
+            const decisionIndex = $(this).index();
+            
+            highlightConsequences(eventId, decisionIndex);
+        });
     }
     
     function formatCategoryName(category) {
@@ -228,6 +270,7 @@ $(document).ready(function(){
         html += `<div class="event-header">`;
         html += `<div class="event-type-indicator">${event.category}</div>`;
         html += `<div class="event-rarity ${event.type || 'standard'}">${event.type || 'Standard'}</div>`;
+        html += `<div class="expand-button">📋</div>`;
         html += `</div>`;
         
         // Main content area
@@ -244,19 +287,6 @@ $(document).ready(function(){
         html += `</div>`;
         html += `</div>`;
         
-        // Decision Preview Area
-        if (event.decisions && event.decisions.length > 0) {
-            html += `<div class="decision-preview">`;
-            html += `<div class="decision-count">${event.decisions.length} Decision${event.decisions.length > 1 ? 's' : ''} Available</div>`;
-            html += `<div class="risk-indicators">`;
-            event.decisions.forEach(decision => {
-                const riskColor = getRiskColor(decision.risk_level);
-                html += `<span class="risk-badge" style="background-color: ${riskColor}">${decision.risk_level}</span>`;
-            });
-            html += `</div>`;
-            html += `</div>`;
-        }
-        
         // Stats/details area
         html += `<div class="event-stats">`;
         
@@ -269,10 +299,10 @@ $(document).ready(function(){
             html += `</div>`;
         }
         
-        if (event.chapters) {
+        if (event.chapters || event.excavation_data?.length) {
             html += `<div class="stat-item">`;
             html += `<span class="stat-icon">⛏️</span>`;
-            html += `<span class="stat-value">${event.chapters}</span>`;
+            html += `<span class="stat-value">${event.chapters || event.excavation_data?.length || 0}</span>`;
             html += `<span class="stat-label">Chapters</span>`;
             html += `</div>`;
         }
@@ -295,259 +325,79 @@ $(document).ready(function(){
         
         html += `</div>`;
         
-        // Analyze Button
-        html += `<div class="event-actions">`;
-        html += `<button class="analyze-event-btn" onclick="openEventAnalyzer('${event.id}')">`;
-        html += `📊 Analyze Decisions & Outcomes`;
-        html += `</button>`;
-        html += `</div>`;
+        // Collapsible decision section
+        html += createDecisionSection(event);
         
         html += `</div>`;
         return html;
     }
     
-    function getRiskColor(riskLevel) {
-        switch(riskLevel) {
-            case 'Safe': return '#28a745';
-            case 'Low': return '#17a2b8';
-            case 'Medium': return '#ffc107';
-            case 'High': return '#fd7e14';
-            case 'Extreme': return '#dc3545';
-            default: return '#6c757d';
+    function createDecisionSection(event) {
+        if (!event.decisions && !event.outcomes) {
+            return '';
         }
-    }
-    
-    // Global variable to store events data for analyzer
-    window.currentEventsData = {};
-    
-    // Update displayEventsData to store data globally
-    const originalDisplayEventsData = displayEventsData;
-    displayEventsData = function(eventsData) {
-        window.currentEventsData = eventsData;
-        originalDisplayEventsData(eventsData);
         
-        // Add click handlers for event cards
-        $('.stellaris-event-card').click(function(e) {
-            if (!$(e.target).hasClass('analyze-event-btn')) {
-                const eventId = $(this).data('event-id');
-                openEventAnalyzer(eventId);
-            }
-        });
-    };
-    
-    // Event Analyzer Modal
-    window.openEventAnalyzer = function(eventId) {
-        const event = findEventById(eventId);
-        if (!event) return;
-        
-        let html = createEventAnalyzer(event);
-        
-        // Create modal overlay
-        const modalOverlay = $('<div class="event-analyzer-overlay"></div>');
-        const modalContent = $('<div class="event-analyzer-modal"></div>');
-        modalContent.html(html);
-        modalOverlay.append(modalContent);
-        
-        // Add to body
-        $('body').append(modalOverlay);
-        
-        // Show modal
-        modalOverlay.fadeIn(300);
-        
-        // Close handlers
-        modalOverlay.click(function(e) {
-            if (e.target === this) {
-                closeEventAnalyzer();
-            }
-        });
-        
-        $('.close-analyzer').click(closeEventAnalyzer);
-    };
-    
-    window.closeEventAnalyzer = function() {
-        $('.event-analyzer-overlay').fadeOut(300, function() {
-            $(this).remove();
-        });
-    };
-    
-    function findEventById(eventId) {
-        for (const category in window.currentEventsData) {
-            const event = window.currentEventsData[category].find(e => e.id === eventId);
-            if (event) return event;
-        }
-        return null;
-    }
-    
-    function createEventAnalyzer(event) {
-        let html = `<div class="analyzer-header">`;
-        html += `<h2 class="analyzer-title">${event.name}</h2>`;
-        html += `<button class="close-analyzer">✕</button>`;
+        let html = `<div class="event-decisions" style="display: none;">`;
+        html += `<div class="decisions-header">`;
+        html += `<h4>📋 Available Options</h4>`;
         html += `</div>`;
         
-        html += `<div class="analyzer-content">`;
-        
-        // Left Panel - Event Details & Decisions
-        html += `<div class="analyzer-left">`;
-        html += `<div class="event-full-description">`;
-        html += `<h3>Event Description</h3>`;
-        html += `<p>${event.description}</p>`;
-        html += `</div>`;
-        
-        if (event.decisions) {
-            html += `<div class="decision-analysis">`;
-            html += `<h3>Decision Options</h3>`;
+        // If event has explicit decisions (like anomaly.40)
+        if (event.decisions && event.decisions.length > 0) {
             event.decisions.forEach((decision, index) => {
-                html += createDecisionOption(decision, index);
+                html += `<div class="decision-option" data-risk="${decision.risk_level?.toLowerCase() || 'unknown'}">`;
+                html += `<div class="decision-header">`;
+                html += `<span class="decision-title">${decision.option_text || decision.option_name}</span>`;
+                html += `<span class="risk-indicator ${decision.risk_level?.toLowerCase() || 'unknown'}">${decision.risk_level || 'Unknown Risk'}</span>`;
+                html += `</div>`;
+                
+                if (decision.outcomes && decision.outcomes.length > 0) {
+                    html += `<div class="decision-outcomes">`;
+                    decision.outcomes.forEach(outcome => {
+                        const probability = outcome.probability || '100%';
+                        html += `<div class="outcome-item">`;
+                        html += `<span class="outcome-type ${outcome.type}">${getOutcomeIcon(outcome.type)}</span>`;
+                        html += `<span class="outcome-text">${outcome.result}</span>`;
+                        html += `<span class="outcome-probability">${probability}</span>`;
+                        html += `</div>`;
+                    });
+                    html += `</div>`;
+                }
+                
+                html += `</div>`;
+            });
+        } 
+        // If event has simple outcomes (like basic anomalies)
+        else if (event.outcomes && event.outcomes.length > 0) {
+            html += `<div class="simple-outcomes">`;
+            html += `<h5>Possible Outcomes:</h5>`;
+            event.outcomes.forEach(outcome => {
+                html += `<div class="outcome-item">`;
+                html += `<span class="outcome-weight">Weight: ${outcome.weight}%</span>`;
+                html += `<span class="outcome-result">${outcome.result}</span>`;
+                html += `</div>`;
             });
             html += `</div>`;
-        }
-        html += `</div>`;
-        
-        // Right Panel - Consequences & Relationships
-        html += `<div class="analyzer-right">`;
-        html += createConsequencesSummary(event);
-        html += createRelationshipTree(event);
-        html += `</div>`;
-        
-        html += `</div>`;
-        return html;
-    }
-    
-    function createDecisionOption(decision, index) {
-        const riskColor = getRiskColor(decision.risk_level);
-        
-        let html = `<div class="decision-option" data-risk="${decision.risk_level}">`;
-        html += `<div class="decision-header">`;
-        html += `<h4>Option ${index + 1}: ${decision.option_text}</h4>`;
-        html += `<span class="risk-level" style="background-color: ${riskColor}">${decision.risk_level}</span>`;
-        html += `</div>`;
-        
-        if (decision.warning) {
-            html += `<div class="decision-warning">⚠️ ${decision.warning}</div>`;
-        }
-        
-        if (decision.wiki_notes) {
-            html += `<div class="wiki-notes">📚 Wiki Notes: ${decision.wiki_notes}</div>`;
-        }
-        
-        html += `<div class="outcomes-list">`;
-        html += `<h5>Possible Outcomes:</h5>`;
-        decision.outcomes.forEach(outcome => {
-            html += `<div class="outcome-item">`;
-            html += `<div class="outcome-header">`;
-            html += `<span class="outcome-type">${outcome.type}:</span>`;
-            html += `<span class="outcome-result">${outcome.result}</span>`;
-            if (outcome.probability) {
-                html += `<span class="outcome-probability">${outcome.probability}</span>`;
-            }
-            html += `</div>`;
-            if (outcome.description) {
-                html += `<div class="outcome-description">${outcome.description}</div>`;
-            }
-            html += `</div>`;
-        });
-        html += `</div>`;
-        
-        html += `</div>`;
-        return html;
-    }
-    
-    function createConsequencesSummary(event) {
-        let html = `<div class="consequences-summary">`;
-        html += `<h3>Overall Consequences Analysis</h3>`;
-        
-        if (event.consequences) {
-            if (event.consequences.positive) {
-                html += `<div class="consequence-category positive">`;
-                html += `<h4>✅ Positive Outcomes</h4>`;
-                event.consequences.positive.forEach(item => {
-                    html += `<div class="consequence-item">${item}</div>`;
-                });
-                html += `</div>`;
-            }
-            
-            if (event.consequences.negative) {
-                html += `<div class="consequence-category negative">`;
-                html += `<h4>⚠️ Negative Outcomes</h4>`;
-                event.consequences.negative.forEach(item => {
-                    html += `<div class="consequence-item">${item}</div>`;
-                });
-                html += `</div>`;
-            }
-            
-            if (event.consequences.catastrophic) {
-                html += `<div class="consequence-category catastrophic">`;
-                html += `<h4>💀 Catastrophic Risks</h4>`;
-                event.consequences.catastrophic.forEach(item => {
-                    html += `<div class="consequence-item">${item}</div>`;
-                });
-                html += `</div>`;
-            }
         }
         
         html += `</div>`;
         return html;
     }
     
-    function createRelationshipTree(event) {
-        let html = `<div class="relationship-tree">`;
-        html += `<h3>Event Relationships</h3>`;
-        
-        // Wiki-style technical information
-        if (event.mtth_factors || event.dlc_requirements || event.wiki_categories) {
-            html += `<div class="tree-section wiki-technical">`;
-            html += `<h4>📚 Wiki Information</h4>`;
-            
-            if (event.dlc_requirements) {
-                html += `<div class="tree-item technical">DLC: ${event.dlc_requirements}</div>`;
-            }
-            
-            if (event.mtth_factors) {
-                html += `<div class="tree-item technical">MTTH: ${event.mtth_factors}</div>`;
-            }
-            
-            if (event.wiki_categories) {
-                html += `<div class="tree-item technical">Categories: ${event.wiki_categories.join(', ')}</div>`;
-            }
-            
-            html += `</div>`;
-        }
-        
-        if (event.prerequisites && event.prerequisites.length > 0) {
-            html += `<div class="tree-section">`;
-            html += `<h4>⬆️ Prerequisites</h4>`;
-            event.prerequisites.forEach(req => {
-                html += `<div class="tree-item prerequisite">${req}</div>`;
-            });
-            html += `</div>`;
-        }
-        
-        if (event.followup_events && event.followup_events.length > 0) {
-            html += `<div class="tree-section">`;
-            html += `<h4>⬇️ Follow-up Events</h4>`;
-            event.followup_events.forEach(followup => {
-                html += `<div class="tree-item followup">${followup}</div>`;
-            });
-            html += `</div>`;
-        }
-        
-        if (event.event_chain) {
-            html += `<div class="tree-section">`;
-            html += `<h4>🔗 Event Chain</h4>`;
-            html += `<div class="tree-item chain">${event.event_chain}</div>`;
-            html += `</div>`;
-        }
-        
-        // Community strategy notes
-        if (event.community_strategy) {
-            html += `<div class="tree-section">`;
-            html += `<h4>🎯 Community Strategy</h4>`;
-            html += `<div class="tree-item strategy">${event.community_strategy}</div>`;
-            html += `</div>`;
-        }
-        
-        html += `</div>`;
-        return html;
+    function getOutcomeIcon(type) {
+        const icons = {
+            'resource': '💰',
+            'research': '🔬',
+            'artifacts': '🏺',
+            'deposit': '⛏️',
+            'modifier': '📊',
+            'planetary': '🌍',
+            'special_project': '🚀',
+            'event_chain': '⛓️',
+            'nothing': '❌',
+            'risk': '⚠️'
+        };
+        return icons[type] || '❓';
     }
     
     function getResearchIcon(researchType) {
@@ -558,5 +408,168 @@ $(document).ready(function(){
             default: return '🔍';
         }
     }
+    
+    // Consequence analysis functions
+    window.showConsequenceAnalysis = function(eventId) {
+        console.log("Showing consequence analysis for:", eventId);
+        
+        // Find the event in our data
+        let eventData = null;
+        let categoryData = null;
+        
+        Object.keys(window.eventsCache || {}).forEach(category => {
+            const event = window.eventsCache[category].find(e => e.id === eventId);
+            if (event) {
+                eventData = event;
+                categoryData = category;
+            }
+        });
+        
+        if (!eventData) return;
+        
+        createSidePanel();
+        updateSidePanelContent(eventData, categoryData);
+    };
+    
+    function createSidePanel() {
+        if ($('#consequence-panel').length > 0) return;
+        
+        const panel = `
+            <div id="consequence-panel" class="consequence-side-panel">
+                <div class="panel-header">
+                    <h3>📊 Consequence Analysis</h3>
+                    <button class="close-panel">✖</button>
+                </div>
+                <div class="panel-content">
+                    <div id="event-summary"></div>
+                    <div id="decision-tree"></div>
+                    <div id="risk-assessment"></div>
+                    <div id="recommendations"></div>
+                </div>
+            </div>
+        `;
+        
+        $('body').append(panel);
+        
+        $('.close-panel').click(function() {
+            $('#consequence-panel').removeClass('open');
+            setTimeout(() => $('#consequence-panel').remove(), 300);
+        });
+    }
+    
+    function updateSidePanelContent(event, category) {
+        const panel = $('#consequence-panel');
+        
+        // Event Summary
+        let summaryHtml = `
+            <div class="analysis-section">
+                <h4>📋 Event Overview</h4>
+                <div class="event-meta">
+                    <span class="event-id">ID: ${event.id}</span>
+                    <span class="event-category">${event.category}</span>
+                    <span class="event-type">${event.type || 'Standard'}</span>
+                </div>
+                <p class="event-desc">${event.description}</p>
+            </div>
+        `;
+        $('#event-summary').html(summaryHtml);
+        
+        // Risk Assessment
+        let riskHtml = `<div class="analysis-section">
+            <h4>⚠️ Risk Assessment</h4>`;
+        
+        if (event.decisions) {
+            event.decisions.forEach((decision, index) => {
+                const riskClass = decision.risk_level?.toLowerCase() || 'unknown';
+                riskHtml += `
+                    <div class="risk-item ${riskClass}">
+                        <span class="risk-label">${decision.option_text || decision.option_name}</span>
+                        <span class="risk-level ${riskClass}">${decision.risk_level || 'Unknown'}</span>
+                    </div>
+                `;
+            });
+        } else if (event.outcomes) {
+            riskHtml += `<div class="outcome-probabilities">`;
+            event.outcomes.forEach(outcome => {
+                riskHtml += `<div class="prob-item">
+                    <span class="prob-weight">${outcome.weight}%</span>
+                    <span class="prob-result">${outcome.result}</span>
+                </div>`;
+            });
+            riskHtml += `</div>`;
+        }
+        
+        riskHtml += `</div>`;
+        $('#risk-assessment').html(riskHtml);
+        
+        // Decision Tree (simplified)
+        let treeHtml = `
+            <div class="analysis-section">
+                <h4>🌳 Decision Flow</h4>
+                <div class="decision-tree">
+                    <div class="tree-node root">
+                        <span class="node-title">${event.name}</span>
+        `;
+        
+        if (event.decisions) {
+            event.decisions.forEach((decision, index) => {
+                treeHtml += `
+                    <div class="tree-branch">
+                        <div class="branch-decision">${decision.option_text || decision.option_name}</div>
+                `;
+                if (decision.outcomes) {
+                    decision.outcomes.forEach(outcome => {
+                        treeHtml += `<div class="branch-outcome">${outcome.result}</div>`;
+                    });
+                }
+                treeHtml += `</div>`;
+            });
+        }
+        
+        treeHtml += `</div></div></div>`;
+        $('#decision-tree').html(treeHtml);
+        
+        // Recommendations
+        let recHtml = `
+            <div class="analysis-section">
+                <h4>💡 Recommendations</h4>
+                <div class="recommendations-list">
+        `;
+        
+        if (event.community_strategy) {
+            recHtml += `<div class="rec-item community">
+                <span class="rec-label">Community Strategy:</span>
+                <span class="rec-text">${event.community_strategy}</span>
+            </div>`;
+        }
+        
+        // Add generic recommendations based on event type
+        if (category === 'anomalies') {
+            recHtml += `<div class="rec-item general">
+                <span class="rec-label">General Tip:</span>
+                <span class="rec-text">Anomalies are generally safe to investigate and provide valuable research or resources.</span>
+            </div>`;
+        } else if (category === 'crisis_events') {
+            recHtml += `<div class="rec-item warning">
+                <span class="rec-label">Critical:</span>
+                <span class="rec-text">Crisis events require immediate galactic coordination and massive military preparation.</span>
+            </div>`;
+        }
+        
+        recHtml += `</div></div>`;
+        $('#recommendations').html(recHtml);
+        
+        panel.addClass('open');
+    }
+    
+    window.highlightConsequences = function(eventId, decisionIndex) {
+        console.log("Highlighting consequences for decision:", decisionIndex, "of event:", eventId);
+        // This function could highlight specific outcomes in the side panel
+        const selectedDecision = $('.decision-option.selected');
+        selectedDecision.addClass('analyzing');
+    };
+    
+    // Store events data for later use
+    window.eventsCache = {};
     
 });
